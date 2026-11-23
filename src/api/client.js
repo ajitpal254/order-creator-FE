@@ -1,8 +1,34 @@
-const API_BASE = '/api';
+// Production API base: set VITE_API_URL on Netlify to the deployed backend
+// (e.g. https://<service>.onrender.com/api). In local dev it is unset and
+// '/api' is served by the Vite dev proxy from the backend on :5000.
+const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
-// Helper to make API requests with Authorization header
-export async function apiRequest(endpoint, options = {}) {
-  const token = localStorage.getItem('hao_token');
+const getToken = () => localStorage.getItem('hao_token');
+
+// Silent refresh using the httpOnly refresh-token cookie. Returns true when
+// a fresh access token was issued and stored.
+async function tryRefresh() {
+  try {
+    const res = await fetch(`${API_BASE}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    if (!res.ok) return false;
+    const data = await res.json().catch(() => null);
+    const token = data?.token || data?.accessToken;
+    if (token) localStorage.setItem('hao_token', token);
+    return Boolean(token);
+  } catch {
+    return false;
+  }
+}
+
+// Helper to make API requests with Authorization header.
+// credentials: 'include' sends the refresh-token cookie cross-site in
+// production (frontend on Netlify, API on Render). On a 401 it tries one
+// silent refresh and retries the request once with the new token.
+export async function apiRequest(endpoint, options = {}, _retried = false) {
+  const token = getToken();
   const headers = { ...options.headers };
 
   if (token) {
@@ -15,9 +41,14 @@ export async function apiRequest(endpoint, options = {}) {
   }
 
   const response = await fetch(`${API_BASE}${endpoint}`, {
+    credentials: 'include',
     ...options,
     headers,
   });
+
+  if (response.status === 401 && !_retried && endpoint !== '/auth/refresh') {
+    if (await tryRefresh()) return apiRequest(endpoint, options, true);
+  }
 
   const isJson = response.headers.get('content-type')?.includes('application/json');
   const data = isJson ? await response.json() : await response.text();
@@ -139,11 +170,12 @@ export const orderApi = {
   getStats: () => apiRequest('/orders/stats/summary'),
   getPdfUrl: (id) => {
     const token = localStorage.getItem('hao_token');
-    return `/api/orders/${id}/pdf${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+    return `${API_BASE}/orders/${id}/pdf${token ? `?token=${encodeURIComponent(token)}` : ''}`;
   },
   downloadPdf: async (id, orderNumber = 'Document') => {
     const token = localStorage.getItem('hao_token');
-    const response = await fetch(`/api/orders/${id}/pdf`, {
+    const response = await fetch(`${API_BASE}/orders/${id}/pdf`, {
+      credentials: 'include',
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },

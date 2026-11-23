@@ -10,6 +10,7 @@ import { CatalogPage } from './pages/catalog/CatalogPage';
 import { OrderCreatorPage } from './pages/order/OrderCreatorPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { SignupPage } from './pages/auth/SignupPage';
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
 import { MyOrdersPage } from './pages/orders/MyOrdersPage';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 
@@ -44,6 +45,7 @@ function App() {
                 <Route path="/order-creator" element={<OrderCreatorPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
 
                 {/* Protected Buyer Routes */}
                 <Route
