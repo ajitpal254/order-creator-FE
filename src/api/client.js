@@ -1,8 +1,90 @@
-const API_BASE = '/api';
+// Production API base: set VITE_API_URL on Netlify to the deployed backend
+// (e.g. https://<service>.onrender.com/api). In local dev it is unset and
+// '/api' is served by the Vite dev proxy from the backend on :5000.
+const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
-// Helper to make API requests with Authorization header
-export async function apiRequest(endpoint, options = {}) {
-  const token = localStorage.getItem('hao_token');
+const getToken = () => localStorage.getItem('hao_token');
+
+// Silent-refresh state: concurrent 401s share a single refresh instead of
+// each firing their own. Waiters resolve with the fresh token (or reject
+// when the session is dead).
+let isRefreshing = false;
+let refreshWaiters = [];
+
+const resolveWaiters = (token) => {
+  refreshWaiters.forEach(({ resolve }) => resolve(token));
+  refreshWaiters = [];
+};
+const rejectWaiters = (err) => {
+  refreshWaiters.forEach(({ reject }) => reject(err));
+  refreshWaiters = [];
+};
+
+// Silent refresh using the httpOnly refresh-token cookie. Returns the fresh
+// access token, or null when the session is dead — in which case the stale
+// token is cleared so the app treats the user as logged out.
+async function refreshAccessToken() {
+  if (isRefreshing) {
+    return new Promise((resolve, reject) => {
+      refreshWaiters.push({ resolve, reject });
+    });
+  }
+  isRefreshing = true;
+  try {
+    const res = await fetch(`${API_BASE}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      rejectWaiters(new Error('Session expired'));
+      localStorage.removeItem('hao_token');
+      return null;
+    }
+    const data = await res.json().catch(() => null);
+    const token = data?.accessToken || data?.token;
+    if (!token) {
+      rejectWaiters(new Error('Session expired'));
+      localStorage.removeItem('hao_token');
+      return null;
+    }
+    localStorage.setItem('hao_token', token);
+    resolveWaiters(token);
+    return token;
+  } catch (err) {
+    rejectWaiters(err);
+    localStorage.removeItem('hao_token');
+    return null;
+  } finally {
+    isRefreshing = false;
+  }
+}
+
+// Auth endpoints never trigger a refresh: a 401 there means bad credentials,
+// not an expired session.
+const isAuthEndpoint = (endpoint) =>
+  endpoint.startsWith('/auth/login') ||
+  endpoint.startsWith('/auth/refresh') ||
+  endpoint.startsWith('/auth/signup');
+
+function parseResponseError(data, status) {
+  let message = data?.message || (typeof data === 'string' ? data : 'Request failed');
+  // Surface server-side validation details (e.g. Zod field errors).
+  if (Array.isArray(data?.errors) && data.errors.length > 0) {
+    message = `${message} — ${data.errors.map((e) => `${e.field || 'field'}: ${e.message}`).join(', ')}`;
+  }
+  const err = new Error(message);
+  err.status = status;
+  err.data = data;
+  return err;
+}
+
+// Helper to make API requests with Authorization header.
+// credentials: 'include' sends the refresh-token cookie cross-site in
+// production (frontend on Netlify, API on Render). On a 401 it tries one
+// silent refresh and retries the request once with the new token.
+export async function apiRequest(endpoint, options = {}, _retried = false) {
+  const token = getToken();
   const headers = { ...options.headers };
 
   if (token) {
@@ -15,20 +97,23 @@ export async function apiRequest(endpoint, options = {}) {
   }
 
   const response = await fetch(`${API_BASE}${endpoint}`, {
+    credentials: 'include',
     ...options,
     headers,
   });
 
+  if (response.status === 401 && !_retried && !isAuthEndpoint(endpoint)) {
+    try {
+      if (await refreshAccessToken()) return apiRequest(endpoint, options, true);
+    } catch {
+      // Refresh failed — fall through and report the original 401.
+    }
+  }
+
   const isJson = response.headers.get('content-type')?.includes('application/json');
   const data = isJson ? await response.json() : await response.text();
 
-  if (!response.ok) {
-    const errorMsg = data?.message || (typeof data === 'string' ? data : 'Request failed');
-    const err = new Error(errorMsg);
-    err.status = response.status;
-    err.data = data;
-    throw err;
-  }
+  if (!response.ok) throw parseResponseError(data, response.status);
 
   return data;
 }
@@ -50,6 +135,8 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify(googleData),
     }),
+  refreshToken: () => apiRequest('/auth/refresh', { method: 'POST' }),
+  logout: () => apiRequest('/auth/logout', { method: 'POST' }),
   forgotPassword: (email) =>
     apiRequest('/auth/forgot-password', {
       method: 'POST',
@@ -139,11 +226,12 @@ export const orderApi = {
   getStats: () => apiRequest('/orders/stats/summary'),
   getPdfUrl: (id) => {
     const token = localStorage.getItem('hao_token');
-    return `/api/orders/${id}/pdf${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+    return `${API_BASE}/orders/${id}/pdf${token ? `?token=${encodeURIComponent(token)}` : ''}`;
   },
   downloadPdf: async (id, orderNumber = 'Document') => {
     const token = localStorage.getItem('hao_token');
-    const response = await fetch(`/api/orders/${id}/pdf`, {
+    const response = await fetch(`${API_BASE}/orders/${id}/pdf`, {
+      credentials: 'include',
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },

@@ -98,6 +98,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Tell the server to revoke the refresh token + clear its cookie.
+    // Local state clears immediately either way — a failed call must not
+    // trap the user in a logged-in UI.
+    authApi.logout().catch(() => {});
     localStorage.removeItem('hao_token');
     setToken(null);
     setUser(null);
