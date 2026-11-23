@@ -5,22 +5,78 @@ const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
 const getToken = () => localStorage.getItem('hao_token');
 
-// Silent refresh using the httpOnly refresh-token cookie. Returns true when
-// a fresh access token was issued and stored.
-async function tryRefresh() {
+// Silent-refresh state: concurrent 401s share a single refresh instead of
+// each firing their own. Waiters resolve with the fresh token (or reject
+// when the session is dead).
+let isRefreshing = false;
+let refreshWaiters = [];
+
+const resolveWaiters = (token) => {
+  refreshWaiters.forEach(({ resolve }) => resolve(token));
+  refreshWaiters = [];
+};
+const rejectWaiters = (err) => {
+  refreshWaiters.forEach(({ reject }) => reject(err));
+  refreshWaiters = [];
+};
+
+// Silent refresh using the httpOnly refresh-token cookie. Returns the fresh
+// access token, or null when the session is dead — in which case the stale
+// token is cleared so the app treats the user as logged out.
+async function refreshAccessToken() {
+  if (isRefreshing) {
+    return new Promise((resolve, reject) => {
+      refreshWaiters.push({ resolve, reject });
+    });
+  }
+  isRefreshing = true;
   try {
     const res = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
     });
-    if (!res.ok) return false;
+    if (!res.ok) {
+      rejectWaiters(new Error('Session expired'));
+      localStorage.removeItem('hao_token');
+      return null;
+    }
     const data = await res.json().catch(() => null);
-    const token = data?.token || data?.accessToken;
-    if (token) localStorage.setItem('hao_token', token);
-    return Boolean(token);
-  } catch {
-    return false;
+    const token = data?.accessToken || data?.token;
+    if (!token) {
+      rejectWaiters(new Error('Session expired'));
+      localStorage.removeItem('hao_token');
+      return null;
+    }
+    localStorage.setItem('hao_token', token);
+    resolveWaiters(token);
+    return token;
+  } catch (err) {
+    rejectWaiters(err);
+    localStorage.removeItem('hao_token');
+    return null;
+  } finally {
+    isRefreshing = false;
   }
+}
+
+// Auth endpoints never trigger a refresh: a 401 there means bad credentials,
+// not an expired session.
+const isAuthEndpoint = (endpoint) =>
+  endpoint.startsWith('/auth/login') ||
+  endpoint.startsWith('/auth/refresh') ||
+  endpoint.startsWith('/auth/signup');
+
+function parseResponseError(data, status) {
+  let message = data?.message || (typeof data === 'string' ? data : 'Request failed');
+  // Surface server-side validation details (e.g. Zod field errors).
+  if (Array.isArray(data?.errors) && data.errors.length > 0) {
+    message = `${message} — ${data.errors.map((e) => `${e.field || 'field'}: ${e.message}`).join(', ')}`;
+  }
+  const err = new Error(message);
+  err.status = status;
+  err.data = data;
+  return err;
 }
 
 // Helper to make API requests with Authorization header.
@@ -46,20 +102,18 @@ export async function apiRequest(endpoint, options = {}, _retried = false) {
     headers,
   });
 
-  if (response.status === 401 && !_retried && endpoint !== '/auth/refresh') {
-    if (await tryRefresh()) return apiRequest(endpoint, options, true);
+  if (response.status === 401 && !_retried && !isAuthEndpoint(endpoint)) {
+    try {
+      if (await refreshAccessToken()) return apiRequest(endpoint, options, true);
+    } catch {
+      // Refresh failed — fall through and report the original 401.
+    }
   }
 
   const isJson = response.headers.get('content-type')?.includes('application/json');
   const data = isJson ? await response.json() : await response.text();
 
-  if (!response.ok) {
-    const errorMsg = data?.message || (typeof data === 'string' ? data : 'Request failed');
-    const err = new Error(errorMsg);
-    err.status = response.status;
-    err.data = data;
-    throw err;
-  }
+  if (!response.ok) throw parseResponseError(data, response.status);
 
   return data;
 }
@@ -81,6 +135,8 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify(googleData),
     }),
+  refreshToken: () => apiRequest('/auth/refresh', { method: 'POST' }),
+  logout: () => apiRequest('/auth/logout', { method: 'POST' }),
   forgotPassword: (email) =>
     apiRequest('/auth/forgot-password', {
       method: 'POST',
