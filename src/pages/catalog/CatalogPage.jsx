@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useProducts, useCategories } from '../../hooks/useProducts';
 import { useOrder } from '../../context/OrderContext';
 import { ListSkeleton } from '../../components/ListSkeleton';
+import { RfqForm } from '../../components/catalog/RfqForm';
+import { usePageMeta } from '../../lib/pageMeta';
 import { 
   Search, 
   Filter, 
@@ -36,6 +38,27 @@ export const CatalogPage = () => {
     search: searchTerm,
   });
   const { data: categories = [] } = useCategories();
+
+  // Per-catalog meta/OG tags (v0.9 F3): once products load, the head
+  // tags name the products actually on the page so shared catalog
+  // links carry real product names/SKUs instead of a generic blurb.
+  usePageMeta({
+    title:
+      products.length > 0
+        ? `H.A. Overseas Tools Catalog — ${products
+            .slice(0, 3)
+            .map((p) => p.name)
+            .join(', ')}`
+        : 'H.A. Overseas Tools Catalog',
+    description:
+      products.length > 0
+        ? `Export-grade hand tools from H.A. Overseas: ${products
+            .map((p) => `${p.name} (${p.sku})`)
+            .join('; ')}. MOQ and lead times shown per product.`
+        : 'Explore export-grade hand tools, grease guns, wrenches, and workshop hardware from H.A. Overseas.',
+    image: products[0]?.images?.[0] || undefined,
+    type: 'website',
+  });
 
   const handleConfigureInOrderCreator = (product) => {
     navigate('/order-creator', { state: { preSelectedProduct: product } });
@@ -290,6 +313,9 @@ export const CatalogPage = () => {
             ))}
           </div>
         )}
+
+        {/* Public RFQ form (v0.9 F3): no account required. */}
+        <RfqForm />
       </div>
     </div>
   );

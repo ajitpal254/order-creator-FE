@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileDown, Package, RotateCcw } from 'lucide-react';
 import { StatusBadge } from '../StatusBadge';
+import { ApprovalStatusChip } from './ApprovalStatusChip';
 import { FxRateLine } from '../order/FxRateLine';
 
 // One order row for the buyer dashboard (FE-13): order number, date,
@@ -48,6 +49,7 @@ export const BuyerOrderCard = ({
           <div className="buyer-order-card__number-row">
             <span className="buyer-order-card__number">{order.orderNumber}</span>
             <StatusBadge status={order.status} />
+            <ApprovalStatusChip order={order} />
           </div>
           {placedOn && (
             <span className="buyer-order-card__date">Placed on {placedOn}</span>

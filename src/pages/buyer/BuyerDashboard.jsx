@@ -13,6 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import { BuyerOrderCard } from '../../components/buyer/BuyerOrderCard';
 import { AwaitingActionItem } from '../../components/buyer/AwaitingActionItem';
+import { CompanyApprovals } from '../../components/buyer/CompanyApprovals';
 import {
   getActiveOrders,
   getDraftOrders,
@@ -173,6 +174,10 @@ export const BuyerDashboard = () => {
                 </div>
               )}
             </section>
+
+            {/* Company approval queue (v0.9 F3): renders only when
+                company orders are awaiting this user's approval. */}
+            <CompanyApprovals />
 
             {/* Active orders */}
             <section className="buyer-dashboard__section">
