@@ -52,6 +52,16 @@ export const BuyerOrderCard = ({
           {placedOn && (
             <span className="buyer-order-card__date">Placed on {placedOn}</span>
           )}
+          {order.estimatedShipDate && (
+            <span className="buyer-order-card__date" style={{ display: 'block' }}>
+              Estimated ship date:{' '}
+              {new Date(order.estimatedShipDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </span>
+          )}
         </div>
       </div>
 

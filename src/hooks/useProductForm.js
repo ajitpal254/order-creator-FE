@@ -13,6 +13,9 @@ export const useProductForm = ({ setProducts, showToast }) => {
     description: '',
     basePrice: 10,
     moq: 50,
+    leadTimeDays: '',
+    stockQuantity: '',
+    availabilityNote: '',
     weightKg: 1.0,
     pcsPerCarton: 20,
     allowedSizes: [],
@@ -34,6 +37,17 @@ export const useProductForm = ({ setProducts, showToast }) => {
       formData.append('description', productForm.description);
       formData.append('basePrice', productForm.basePrice);
       formData.append('moq', productForm.moq);
+      // Inventory fields (FEAT-09): optional — appended only when set,
+      // mirroring the conditional append used for the image upload below.
+      if (productForm.leadTimeDays !== '' && productForm.leadTimeDays != null) {
+        formData.append('leadTimeDays', productForm.leadTimeDays);
+      }
+      if (productForm.stockQuantity !== '' && productForm.stockQuantity != null) {
+        formData.append('stockQuantity', productForm.stockQuantity);
+      }
+      if (productForm.availabilityNote) {
+        formData.append('availabilityNote', productForm.availabilityNote);
+      }
       formData.append('weightKg', productForm.weightKg);
       formData.append('pcsPerCarton', productForm.pcsPerCarton);
       formData.append('allowedSizes', JSON.stringify(productForm.allowedSizes));

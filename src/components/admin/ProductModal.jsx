@@ -69,6 +69,38 @@ export const ProductModal = ({ isProductModalOpen, setIsProductModalOpen, editin
         </div>
       </div>
 
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+        <div className="form-group">
+          <label className="form-label">Lead Time (days)</label>
+          <input
+            type="number"
+            className="form-control"
+            value={productForm.leadTimeDays ?? ''}
+            onChange={(e) => setProductForm({ ...productForm, leadTimeDays: e.target.value })}
+          />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Stock Quantity</label>
+          <input
+            type="number"
+            className="form-control"
+            value={productForm.stockQuantity ?? ''}
+            onChange={(e) => setProductForm({ ...productForm, stockQuantity: e.target.value })}
+          />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Availability Note</label>
+          <input
+            type="text"
+            className="form-control"
+            value={productForm.availabilityNote ?? ''}
+            onChange={(e) => setProductForm({ ...productForm, availabilityNote: e.target.value })}
+          />
+        </div>
+      </div>
+
       <div className="form-group">
         <label className="form-label">Description & Technical Features</label>
         <textarea

@@ -244,6 +244,38 @@ export const CatalogPage = () => {
                       </div>
                     </div>
 
+                    {/* Inventory hints (FEAT-09): lead time + availability,
+                        shown only when the product actually carries them.
+                        Explicit null checks so a stockQuantity of 0 still
+                        renders as "Out of stock". */}
+                    {(product.leadTimeDays != null ||
+                      product.stockQuantity != null ||
+                      product.availabilityNote) && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.2rem',
+                          marginBottom: '1rem',
+                          fontSize: '0.8rem',
+                          color: 'var(--text-secondary)',
+                        }}
+                      >
+                        {product.leadTimeDays != null && (
+                          <span>Lead time: {product.leadTimeDays} days</span>
+                        )}
+                        {product.stockQuantity != null &&
+                          (product.stockQuantity > 0 ? (
+                            <span>In stock: {product.stockQuantity} pcs</span>
+                          ) : (
+                            <span style={{ color: 'var(--accent-amber)' }}>Out of stock</span>
+                          ))}
+                        {product.availabilityNote && (
+                          <span>{product.availabilityNote}</span>
+                        )}
+                      </div>
+                    )}
+
                     <button
                       onClick={() => handleConfigureInOrderCreator(product)}
                       className="btn btn-primary"
