@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { orderApi } from '../../api/client';
 import { useMyOrders } from '../../hooks/useOrders';
 import { StatusBadge } from '../../components/StatusBadge';
+import { QuotePanel } from '../../components/order/QuotePanel';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import { 
   Package, 
@@ -272,6 +273,10 @@ export const MyOrdersPage = () => {
                           </tbody>
                         </table>
                       </div>
+
+                      {/* Quote negotiation (quote-type orders only; the
+                          panel renders nothing for regular orders) */}
+                      <QuotePanel order={order} />
 
                       {/* Shipping Marks box */}
                       {order.shippingMarks && (
