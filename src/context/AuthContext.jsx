@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authApi } from '../api/client';
+import { twoFactorApi } from '../api/twoFactor';
 import { auth, googleProvider, signInWithPopup } from '../firebase';
 
 const AuthContext = createContext(null);
@@ -31,15 +32,40 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, [token]);
 
+  // Store a completed session exactly as every login path always has.
+  const applySession = (res) => {
+    localStorage.setItem('hao_token', res.token);
+    setToken(res.token);
+    setUser(res.user);
+    return res;
+  };
+
   const login = async (usernameOrEmail, password) => {
     const res = await authApi.login({ usernameOrEmail, password });
-    if (res.success && res.token) {
-      localStorage.setItem('hao_token', res.token);
-      setToken(res.token);
-      setUser(res.user);
+    // Two-factor challenge: no session yet — hand the challenge back to
+    // the caller (LoginPage) so it can collect the code. Nothing is
+    // stored until verifyTwoFactor completes the login.
+    if (res.success && res.requires2fa && res.challengeToken) {
       return res;
     }
+    if (res.success && res.token) {
+      return applySession(res);
+    }
     throw new Error(res.message || 'Login failed');
+  };
+
+  // Completes a 2FA-challenged login. On success the user lands in
+  // exactly the same state as a normal login (token stored, user set).
+  const verifyTwoFactor = async (challengeToken, code) => {
+    const res = await twoFactorApi.verify({ challengeToken, code });
+    if (res.success && res.token) {
+      return applySession(res);
+    }
+    throw new Error(res.message || 'Two-factor verification failed');
+  };
+
+  const markTwoFactorEnabled = (enabled) => {
+    setUser((prev) => (prev ? { ...prev, twoFactorEnabled: enabled } : prev));
   };
 
   const signup = async (userData) => {
@@ -108,6 +134,8 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: Boolean(user && token),
         isAdmin: user?.role === 'admin',
         login,
+        verifyTwoFactor,
+        markTwoFactorEnabled,
         signup,
         googleLogin,
         logout,

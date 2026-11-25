@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const LoginPage = () => {
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, verifyTwoFactor } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,7 +28,22 @@ export const LoginPage = () => {
   const [error, setError] = useState(null);
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
+  // Two-factor challenge state (v0.4): set when login returns
+  // { requires2fa, challengeToken } instead of a session.
+  const [challengeToken, setChallengeToken] = useState(null);
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [challengeExpired, setChallengeExpired] = useState(false);
+
   const redirectPath = location.state?.from?.pathname || '/order-creator';
+
+  const navigateAfterLogin = (res) => {
+    if (res.user.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate(redirectPath);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,15 +57,50 @@ export const LoginPage = () => {
 
     try {
       const res = await login(usernameOrEmail, password);
-      if (res.user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate(redirectPath);
+      if (res.requires2fa && res.challengeToken) {
+        setChallengeToken(res.challengeToken);
+        setChallengeExpired(false);
+        setTwoFactorCode('');
+        return;
       }
+      navigateAfterLogin(res);
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const resetChallenge = () => {
+    setChallengeToken(null);
+    setTwoFactorCode('');
+    setChallengeExpired(false);
+    setError(null);
+    setPassword('');
+  };
+
+  const handleVerifyTwoFactor = async (e) => {
+    e.preventDefault();
+    if (!twoFactorCode.trim()) {
+      setError('Please enter your authentication code.');
+      return;
+    }
+
+    setVerifying(true);
+    setError(null);
+
+    try {
+      const res = await verifyTwoFactor(challengeToken, twoFactorCode.trim());
+      navigateAfterLogin(res);
+    } catch (err) {
+      const message = err.message || 'Verification failed. Please try again.';
+      setError(message);
+      setTwoFactorCode('');
+      if (/expired|invalid challenge/i.test(message)) {
+        setChallengeExpired(true);
+      }
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -66,6 +116,142 @@ export const LoginPage = () => {
       setGoogleLoading(false);
     }
   };
+
+  // Two-factor challenge screen: shown instead of the credentials form
+  // when the login response asked for a code. Verifying completes the
+  // login exactly like a normal sign-in (same storage + navigation).
+  if (challengeToken) {
+    return (
+      <div
+        style={{
+          minHeight: '80vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem 1rem',
+        }}
+      >
+        <div
+          className="glass-card animate-fade-in"
+          style={{
+            width: '100%',
+            maxWidth: '460px',
+            border: '1px solid var(--border-medium)',
+            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5)',
+          }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+            <div
+              style={{
+                width: '54px',
+                height: '54px',
+                backgroundColor: '#1E293B',
+                border: '1px solid var(--accent-amber)',
+                borderRadius: 'var(--radius-lg)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 0 20px rgba(245, 158, 11, 0.3)',
+                marginBottom: '0.75rem',
+              }}
+            >
+              <ShieldAlert size={26} color="#F59E0B" />
+            </div>
+            <h2 style={{ fontSize: '1.6rem', color: '#FFFFFF', marginBottom: '0.25rem' }}>
+              Two-Factor Verification
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+              Enter the code from your authenticator app to finish signing in.
+            </p>
+          </div>
+
+          {error && (
+            <div
+              style={{
+                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                color: '#F87171',
+                padding: '0.85rem',
+                borderRadius: 'var(--radius-md)',
+                marginBottom: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                fontSize: '0.85rem',
+              }}
+            >
+              <AlertCircle size={18} style={{ flexShrink: 0 }} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {challengeExpired ? (
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                This sign-in challenge has expired or is no longer valid. Please start again.
+              </p>
+              <button
+                type="button"
+                onClick={resetChallenge}
+                className="btn btn-primary"
+                style={{ width: '100%' }}
+              >
+                Restart login
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleVerifyTwoFactor}>
+              <div className="form-group">
+                <label className="form-label" htmlFor="two-factor-code">
+                  Authentication code
+                </label>
+                <input
+                  id="two-factor-code"
+                  type="text"
+                  className="form-control"
+                  placeholder="6-digit code or backup code"
+                  value={twoFactorCode}
+                  onChange={(e) => setTwoFactorCode(e.target.value)}
+                  autoComplete="one-time-code"
+                  autoFocus
+                />
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.4rem' }}>
+                  Enter the 6-digit code from your authenticator app, or one of
+                  your backup codes.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={verifying || !twoFactorCode.trim()}
+                className="btn btn-primary"
+                style={{ width: '100%', marginTop: '0.5rem' }}
+              >
+                {verifying ? 'Verifying...' : 'Verify Code'}
+              </button>
+            </form>
+          )}
+
+          <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+            <button
+              type="button"
+              onClick={resetChallenge}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--accent-amber)',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Back to login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
