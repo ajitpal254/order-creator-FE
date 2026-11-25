@@ -6,6 +6,7 @@ import { buyerOrdersApi } from '../../api/buyerOrders';
 import { orderKeys, useMyOrders } from '../../hooks/useOrders';
 import { StatusBadge } from '../../components/StatusBadge';
 import { QuotePanel } from '../../components/order/QuotePanel';
+import { InvoicePreview } from '../../components/invoice/InvoicePreview';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import { FxRateLine } from '../../components/order/FxRateLine';
 import {
@@ -36,6 +37,9 @@ const bannerBaseStyle = {
 
 export const MyOrdersPage = () => {
   const [expandedOrderId, setExpandedOrderId] = useState(null);
+  // FE-10: on narrow screens the expanded detail collapses into
+  // Details | Invoice tabs; on desktop both panes show side by side.
+  const [detailTab, setDetailTab] = useState('details');
   const [downloadingId, setDownloadingId] = useState(null);
   const [reorderError, setReorderError] = useState(null);
   const [reorderMessage, setReorderMessage] = useState(null);
@@ -123,6 +127,7 @@ export const MyOrdersPage = () => {
   };
 
   const toggleExpand = (orderId) => {
+    setDetailTab('details');
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
   };
 
@@ -333,6 +338,38 @@ export const MyOrdersPage = () => {
                         borderTop: '1px solid var(--border-subtle)',
                       }}
                     >
+                      {/* FE-10 mobile pane switcher — CSS only shows this
+                          at <=900px, where the split below collapses to
+                          one pane at a time. */}
+                      <div className="order-detail-tabs" role="tablist" aria-label="Order detail views">
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={detailTab === 'details'}
+                          onClick={() => setDetailTab('details')}
+                          className={`btn btn-sm ${detailTab === 'details' ? 'btn-primary' : 'btn-secondary'}`}
+                        >
+                          Details
+                        </button>
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={detailTab === 'invoice'}
+                          onClick={() => setDetailTab('invoice')}
+                          className={`btn btn-sm ${detailTab === 'invoice' ? 'btn-primary' : 'btn-secondary'}`}
+                        >
+                          Invoice
+                        </button>
+                      </div>
+
+                      {/* FE-10 split pane: LEFT keeps the existing detail
+                          content (timeline, items, quote panel, shipping
+                          marks — and room for future panels); RIGHT is
+                          the sticky paper invoice preview. */}
+                      <div className="order-detail-split">
+                      <div
+                        className={`order-detail-pane order-detail-left ${detailTab === 'details' ? 'is-mobile-active' : ''}`}
+                      >
                       {/* Timeline status bar */}
                       <div
                         style={{
@@ -427,6 +464,20 @@ export const MyOrdersPage = () => {
                           <span style={{ color: '#FFFFFF', fontFamily: 'monospace' }}>{order.shippingMarks}</span>
                         </div>
                       )}
+                      </div>{/* /order-detail-left */}
+
+                      <aside
+                        className={`order-detail-pane order-detail-right ${detailTab === 'invoice' ? 'is-mobile-active' : ''}`}
+                      >
+                        <InvoicePreview order={order} />
+                      </aside>
+                      </div>{/* /order-detail-split */}
+
+                      {/* Sticky totals bar — totalAmount exactly as returned */}
+                      <div className="order-totals-bar">
+                        <span className="order-totals-bar-label">Order Total (FOB)</span>
+                        <span className="order-totals-bar-value">${order.totalAmount?.toFixed(2)} USD</span>
+                      </div>
                     </div>
                   )}
                 </div>
