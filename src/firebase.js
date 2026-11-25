@@ -26,3 +26,8 @@ if (firebaseConfig.apiKey && firebaseConfig.projectId) {
 }
 
 export { auth, googleProvider, signInWithPopup };
+
+// True only when Firebase was configured at build time (VITE_FIREBASE_* env
+// vars present) and initialised successfully. The UI uses this to disable
+// Google sign-in with a clear message instead of failing at click time.
+export const isFirebaseConfigured = Boolean(auth && googleProvider);

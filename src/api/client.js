@@ -130,10 +130,13 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify(userData),
     }),
-  googleAuth: (googleData) =>
+  // Google sign-in: the body carries ONLY the Firebase ID token. The
+  // backend verifies it and reads email/name/uid from the token itself —
+  // client-supplied identity fields are not trusted (SEC-02).
+  googleAuth: ({ idToken }) =>
     apiRequest('/auth/google', {
       method: 'POST',
-      body: JSON.stringify(googleData),
+      body: JSON.stringify({ idToken }),
     }),
   refreshToken: () => apiRequest('/auth/refresh', { method: 'POST' }),
   logout: () => apiRequest('/auth/logout', { method: 'POST' }),
@@ -224,10 +227,10 @@ export const orderApi = {
       body: JSON.stringify(payload),
     }),
   getStats: () => apiRequest('/orders/stats/summary'),
-  getPdfUrl: (id) => {
-    const token = localStorage.getItem('hao_token');
-    return `${API_BASE}/orders/${id}/pdf${token ? `?token=${encodeURIComponent(token)}` : ''}`;
-  },
+  // PDFs are downloaded ONLY via downloadPdf below: an authenticated fetch
+  // (Authorization header) turned into a blob object URL. The access token
+  // must never travel in a URL query string (SEC-03) — it would leak into
+  // server logs, proxies and browser history.
   downloadPdf: async (id, orderNumber = 'Document') => {
     const token = localStorage.getItem('hao_token');
     const response = await fetch(`${API_BASE}/orders/${id}/pdf`, {
