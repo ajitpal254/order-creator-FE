@@ -1,5 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { orderApi } from '../api/client';
+import { isAddressFilled, pickAddressFields } from '../api/addresses';
+
+// Blank bill-to / ship-to blocks for the order sheet (v0.5 F3). Field
+// names match the saved-address contract (label, line1, line2, city,
+// state, country, postalCode); the picker fills them from a saved
+// address and the buyer can still edit them by hand.
+const emptyOrderAddress = () => ({
+  label: '',
+  line1: '',
+  line2: '',
+  city: '',
+  state: '',
+  country: '',
+  postalCode: '',
+});
 
 const OrderContext = createContext(null);
 
@@ -17,6 +32,8 @@ export const OrderProvider = ({ children }) => {
     shippingMarks: 'H.A. OVERSEAS / ORDER LOT\nPORT OF DISCHARGE: BUYER PORT\nFRAGILE / HANDLE WITH CARE',
     specialInstructions: 'Export seaworthy 7-ply corrugated cartons with inner water-proof plastic barrier.',
     customerOverride: null,
+    billTo: emptyOrderAddress(),
+    shipTo: emptyOrderAddress(),
   });
 
   useEffect(() => {
@@ -153,6 +170,15 @@ export const OrderProvider = ({ children }) => {
       shippingMarks: orderMetadata.shippingMarks,
       specialInstructions: orderMetadata.specialInstructions,
       customerDetailsOverride: orderMetadata.customerOverride,
+      // Bill-to / ship-to ride along only when the buyer actually filled
+      // them (by hand or via a saved address) — an untouched order keeps
+      // exactly the payload shape it has always sent.
+      ...(isAddressFilled(orderMetadata.billTo)
+        ? { billTo: { ...pickAddressFields(orderMetadata.billTo), type: 'bill-to' } }
+        : {}),
+      ...(isAddressFilled(orderMetadata.shipTo)
+        ? { shipTo: { ...pickAddressFields(orderMetadata.shipTo), type: 'ship-to' } }
+        : {}),
     };
 
     const res = await orderApi.createOrder(payload);

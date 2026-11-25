@@ -1,6 +1,55 @@
 import React from 'react';
 import { ShoppingCart, Trash2, Copy, Package, Weight, Boxes, Sparkles } from 'lucide-react';
 import { PriceBreakdown } from './PriceBreakdown';
+import { SavedAddressPicker } from './SavedAddressPicker';
+import { addressTypeLabel, pickAddressFields } from '../../api/addresses';
+
+// Bill-to / ship-to field set for one address block on the order sheet
+// (v0.5 F3). Field keys match the saved-address contract exactly; the
+// "use a saved address" picker above each block fills these fields.
+const ORDER_ADDRESS_FIELDS = [
+  { key: 'label', label: 'Label' },
+  { key: 'line1', label: 'Address line 1' },
+  { key: 'line2', label: 'Address line 2' },
+  { key: 'city', label: 'City' },
+  { key: 'state', label: 'State / Province' },
+  { key: 'country', label: 'Country' },
+  { key: 'postalCode', label: 'Postal code' },
+];
+
+const OrderAddressGroup = ({ type, value, onChange }) => (
+  <div>
+    <h3 style={{ fontSize: '1rem', color: '#FFFFFF', marginBottom: '0.75rem' }}>
+      {addressTypeLabel(type)} details
+    </h3>
+    <SavedAddressPicker
+      type={type}
+      onSelect={(address) => onChange(pickAddressFields(address))}
+    />
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '0.75rem',
+      }}
+    >
+      {ORDER_ADDRESS_FIELDS.map((field) => (
+        <div className="form-group" key={field.key} style={{ margin: 0 }}>
+          <label className="form-label" htmlFor={`${type}-${field.key}`}>
+            {field.label}
+          </label>
+          <input
+            id={`${type}-${field.key}`}
+            type="text"
+            className="form-control"
+            value={value?.[field.key] || ''}
+            onChange={(e) => onChange({ ...value, [field.key]: e.target.value })}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 export const OrderSheet = ({ cartItems, clearCart, updateItem, removeItem, duplicateItem, products = [], totals, orderMetadata, setOrderMetadata, isAuthenticated, user, submitting, handleFinalSubmit }) => (
   <div className="glass-card" style={{ padding: '1.75rem' }}>
@@ -247,6 +296,32 @@ export const OrderSheet = ({ cartItems, clearCart, updateItem, removeItem, dupli
               }
             />
           </div>
+        </div>
+
+        {/* Bill-to / Ship-to details (v0.5 F3): each block can be filled
+            by hand or from a saved address via its picker. */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '1.5rem',
+            marginBottom: '1.5rem',
+            backgroundColor: '#111827',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-md)',
+            padding: '1.25rem',
+          }}
+        >
+          <OrderAddressGroup
+            type="bill-to"
+            value={orderMetadata.billTo}
+            onChange={(billTo) => setOrderMetadata({ ...orderMetadata, billTo })}
+          />
+          <OrderAddressGroup
+            type="ship-to"
+            value={orderMetadata.shipTo}
+            onChange={(shipTo) => setOrderMetadata({ ...orderMetadata, shipTo })}
+          />
         </div>
 
         {/* Submit / Action Bar */}
