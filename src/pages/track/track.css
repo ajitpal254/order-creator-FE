@@ -1,0 +1,87 @@
+/* Public tracking page (v0.6 F2). Minimal chrome that sits cleanly
+   inside the app shell; colours/radii from src/styles/tokens.css. */
+
+.track-page {
+  padding: 3rem 0 4rem;
+}
+
+.track-card {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.track-order-number {
+  font-size: 1.6rem;
+  color: var(--text-primary);
+  margin: 0.75rem 0 0.25rem;
+}
+
+.track-subtitle {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.track-carrier {
+  margin-top: 1.25rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.track-carrier b {
+  color: var(--text-primary);
+}
+
+.track-timeline {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.track-timeline-title {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--accent-amber);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.track-timeline-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: var(--text-sm);
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.track-timeline-status {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.track-timeline-note {
+  color: var(--text-muted);
+}
+
+.track-timeline-date {
+  color: var(--text-muted);
+  margin-left: auto;
+  white-space: nowrap;
+  font-size: var(--text-xs);
+}
+
+.track-message {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--text-base);
+}
