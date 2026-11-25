@@ -159,6 +159,21 @@ export const SettingsPage = () => {
       setEmailNotifications(user.notifications.email);
     }
   }, [user?.notifications?.email]);
+  // WhatsApp opt-in (v0.8 FEAT-11): same profile-update channel as email.
+  const [whatsappNotifications, setWhatsappNotifications] = useState(
+    user?.notifications?.whatsapp ?? false
+  );
+  useEffect(() => {
+    if (typeof user?.notifications?.whatsapp === 'boolean') {
+      setWhatsappNotifications(user.notifications.whatsapp);
+    }
+  }, [user?.notifications?.whatsapp]);
+  // The phone may arrive as `phone` (new) or `phoneNumber` (older shape);
+  // prefer `phone`, fall back to `phoneNumber`. Saves always send `phone`.
+  const [phone, setPhone] = useState(user?.phone || user?.phoneNumber || '');
+  useEffect(() => {
+    setPhone(user?.phone || user?.phoneNumber || '');
+  }, [user?.phone, user?.phoneNumber]);
   const [notificationsBusy, setNotificationsBusy] = useState(false);
   const [notificationsError, setNotificationsError] = useState(null);
   const [notificationsMessage, setNotificationsMessage] = useState(null);
@@ -179,6 +194,44 @@ export const SettingsPage = () => {
     } catch (err) {
       setEmailNotifications(previous);
       setNotificationsError(err.message || 'Could not save notification preferences.');
+    } finally {
+      setNotificationsBusy(false);
+    }
+  };
+
+  const handleToggleWhatsappNotifications = async (e) => {
+    const next = e.target.checked;
+    const previous = whatsappNotifications;
+    setWhatsappNotifications(next);
+    setNotificationsBusy(true);
+    setNotificationsError(null);
+    setNotificationsMessage(null);
+    try {
+      // Merge with any other notification preferences already on the user.
+      await updateProfile({
+        notifications: { ...(user?.notifications || {}), whatsapp: next },
+      });
+      setNotificationsMessage('Notification preferences saved.');
+    } catch (err) {
+      setWhatsappNotifications(previous);
+      setNotificationsError(err.message || 'Could not save notification preferences.');
+    } finally {
+      setNotificationsBusy(false);
+    }
+  };
+
+  const handleSavePhone = async (e) => {
+    e.preventDefault();
+    const previous = user?.phone || user?.phoneNumber || '';
+    setNotificationsBusy(true);
+    setNotificationsError(null);
+    setNotificationsMessage(null);
+    try {
+      await updateProfile({ phone: phone.trim() });
+      setNotificationsMessage('WhatsApp number saved.');
+    } catch (err) {
+      setPhone(previous);
+      setNotificationsError(err.message || 'Could not save your phone number.');
     } finally {
       setNotificationsBusy(false);
     }
@@ -437,6 +490,56 @@ export const SettingsPage = () => {
         <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
           Receive order updates and account notices by email.
         </p>
+
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            color: 'var(--text-secondary)',
+            fontSize: '0.9rem',
+            cursor: 'pointer',
+            marginTop: '1rem',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={whatsappNotifications}
+            onChange={handleToggleWhatsappNotifications}
+            disabled={notificationsBusy}
+          />
+          WhatsApp notifications
+        </label>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
+          Order updates on WhatsApp — only if you&apos;ve opted in.
+        </p>
+
+        <form onSubmit={handleSavePhone} style={{ marginTop: '1rem' }}>
+          <div className="form-group">
+            <label className="form-label" htmlFor="whatsapp-phone">
+              WhatsApp number
+            </label>
+            <input
+              id="whatsapp-phone"
+              type="tel"
+              className="form-control"
+              placeholder="+91 98765 43210"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              autoComplete="tel"
+            />
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
+              Include your country code, e.g. +91 98765 43210
+            </p>
+          </div>
+          <button
+            type="submit"
+            disabled={notificationsBusy}
+            className="btn btn-primary"
+          >
+            {notificationsBusy ? 'Saving...' : 'Save WhatsApp number'}
+          </button>
+        </form>
       </div>
     </div>
   );
