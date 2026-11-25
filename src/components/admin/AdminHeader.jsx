@@ -1,5 +1,6 @@
 import React from 'react';
-import { ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BarChart3, ShieldCheck } from 'lucide-react';
 
 export const AdminHeader = () => (
 <div style={{ marginBottom: '2rem' }}>
@@ -13,5 +14,9 @@ export const AdminHeader = () => (
   <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
     Manage wholesale orders, update dynamic finishes & colorways, configure products, and inspect buyer registrations.
   </p>
+  <Link to="/admin/reports" className="btn btn-secondary btn-sm" style={{ marginTop: '1rem' }}>
+    <BarChart3 size={16} />
+    <span>Reports</span>
+  </Link>
 </div>
 );
