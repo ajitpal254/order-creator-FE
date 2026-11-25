@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { OrderProvider } from './context/OrderContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { AssistantWidget } from './components/assistant/AssistantWidget';
 import { PageLoader } from './components/PageLoader';
 import { NotFound } from './pages/NotFound';
 
@@ -127,6 +128,9 @@ function App() {
               </Suspense>
             </main>
             <Footer />
+            {/* Assistant chat (v0.7 FEAT-16): renders only for
+                authenticated users; the drawer itself is lazy-loaded. */}
+            <AssistantWidget />
           </div>
         </OrderProvider>
       </AuthProvider>

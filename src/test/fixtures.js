@@ -105,6 +105,25 @@ export const templates = [
   },
 ];
 
+// Assistant (v0.7 FEAT-16 Stages 1–2). The reply/chips are values returned
+// by the mocked API and rendered verbatim by the drawer.
+export const assistantReply = {
+  conversationId: 'conv-1',
+  reply: 'Your order HAO-2026-100001 is in production.',
+  chips: ['Track my order', 'Talk to a person'],
+};
+
+export const assistantFaq = [
+  {
+    q: 'What is the minimum order quantity?',
+    a: 'It depends on the product — each catalog item shows its own MOQ.',
+  },
+  {
+    q: 'How do I track my order?',
+    a: 'Open My Orders and choose the order you want to follow.',
+  },
+];
+
 // One order whose line total and grand total are fixture values straight
 // from the (mocked) API: 200 pcs x $12.50 = $2500.00 totalPrice, and the
 // order-level totalAmount is the same figure.
