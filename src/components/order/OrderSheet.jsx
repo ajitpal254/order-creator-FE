@@ -132,17 +132,37 @@ export const OrderSheet = ({ cartItems, clearCart, updateItem, removeItem, dupli
                     <span style={{ fontSize: '0.75rem', color: 'var(--accent-amber-light)' }}>
                       SKU: {item.sku}
                     </span>
-                    {/* MOQ hint (FE-12): shown only when the catalog
-                        product for this line actually carries an moq.
-                        (No lead-time field exists on catalog products,
-                        so no lead-time hint is rendered.) */}
+                    {/* Inventory hints (FE-12 / FEAT-09): shown only when
+                        the catalog product for this line actually carries
+                        the field. The below-MOQ warning is display only —
+                        it never blocks submission or changes the quantity. */}
                     {(() => {
                       const product = products.find((p) => p._id === item.product);
-                      return product?.moq ? (
-                        <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                          MOQ: {product.moq} pcs
-                        </span>
-                      ) : null;
+                      if (!product) return null;
+                      const lineQty = parseInt(item.quantity, 10);
+                      const belowMoq =
+                        product.moq != null &&
+                        !Number.isNaN(lineQty) &&
+                        lineQty < product.moq;
+                      return (
+                        <>
+                          {product.moq ? (
+                            <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                              MOQ: {product.moq} pcs
+                            </span>
+                          ) : null}
+                          {product.leadTimeDays != null && (
+                            <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                              Lead time: {product.leadTimeDays} days
+                            </span>
+                          )}
+                          {belowMoq && (
+                            <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--accent-amber)', fontWeight: 600 }}>
+                              Below MOQ (min {product.moq} pcs)
+                            </span>
+                          )}
+                        </>
+                      );
                     })()}
                   </td>
                   <td>
