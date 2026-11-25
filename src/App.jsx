@@ -26,6 +26,9 @@ const MyOrdersPage = lazy(() =>
 const AdminDashboard = lazy(() =>
   import('./pages/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
 );
+const ReportsPage = lazy(() =>
+  import('./pages/admin/ReportsPage').then((m) => ({ default: m.ReportsPage }))
+);
 const BuyerDashboard = lazy(() =>
   import('./pages/buyer/BuyerDashboard').then((m) => ({ default: m.BuyerDashboard }))
 );
@@ -106,6 +109,14 @@ function App() {
                     element={
                       <AdminRoute>
                         <AdminDashboard />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/reports"
+                    element={
+                      <AdminRoute>
+                        <ReportsPage />
                       </AdminRoute>
                     }
                   />

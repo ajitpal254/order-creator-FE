@@ -1,0 +1,176 @@
+/* Admin reports (v0.6 F3). Component-scoped styles for
+   src/pages/admin/ReportsPage.jsx. Everything is driven by the design
+   tokens in src/styles/tokens.css and the shared .glass-card / .btn /
+   .badge / .custom-table classes — no global rules are added or
+   overridden here. */
+
+.reports-page {
+  padding: 2.5rem 0 4rem;
+}
+
+.reports-page__header {
+  margin-bottom: 2rem;
+}
+
+.reports-page__title {
+  font-size: 2.4rem;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+}
+
+.reports-page__subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.reports-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-decoration: none;
+  margin-bottom: 1rem;
+}
+
+.reports-page__back:hover {
+  color: var(--accent-amber-light);
+}
+
+.reports-page__section {
+  margin-bottom: 2.5rem;
+}
+
+.reports-page__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reports-page__section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.25rem;
+  color: #ffffff;
+}
+
+.reports-page__section-title svg {
+  color: var(--accent-amber);
+}
+
+.reports-page__total {
+  text-align: right;
+}
+
+.reports-page__total-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reports-page__total-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--accent-amber);
+}
+
+.reports-page__controls {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reports-page__group-switcher {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.reports-page__date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.reports-page__date-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reports-page__date-input {
+  width: auto;
+}
+
+.reports-page__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.reports-page__card {
+  padding: 1.25rem;
+}
+
+.reports-page__card-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reports-page__card-value {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin-top: 0.25rem;
+}
+
+.reports-page__card-value--amber {
+  color: var(--accent-amber);
+}
+
+.reports-page__card-meta {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.reports-page__empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.reports-page__error {
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.reports-page__download-error {
+  color: #f87171;
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+}
