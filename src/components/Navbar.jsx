@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { NotificationBell } from './notifications/NotificationBell';
 import { useOrder } from '../context/OrderContext';
 import { 
   Wrench, 
@@ -142,6 +143,7 @@ export const Navbar = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {isAuthenticated ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <NotificationBell />
               <div
                 style={{
                   display: 'flex',
