@@ -1,7 +1,8 @@
 import React from 'react';
-import { ShoppingCart, Trash2, Package, Weight, Boxes, Sparkles } from 'lucide-react';
+import { ShoppingCart, Trash2, Copy, Package, Weight, Boxes, Sparkles } from 'lucide-react';
+import { PriceBreakdown } from './PriceBreakdown';
 
-export const OrderSheet = ({ cartItems, clearCart, updateItem, removeItem, totals, orderMetadata, setOrderMetadata, isAuthenticated, user, submitting, handleFinalSubmit }) => (
+export const OrderSheet = ({ cartItems, clearCart, updateItem, removeItem, duplicateItem, products = [], totals, orderMetadata, setOrderMetadata, isAuthenticated, user, submitting, handleFinalSubmit }) => (
   <div className="glass-card" style={{ padding: '1.75rem' }}>
     <div
       style={{
@@ -82,6 +83,18 @@ export const OrderSheet = ({ cartItems, clearCart, updateItem, removeItem, total
                     <span style={{ fontSize: '0.75rem', color: 'var(--accent-amber-light)' }}>
                       SKU: {item.sku}
                     </span>
+                    {/* MOQ hint (FE-12): shown only when the catalog
+                        product for this line actually carries an moq.
+                        (No lead-time field exists on catalog products,
+                        so no lead-time hint is rendered.) */}
+                    {(() => {
+                      const product = products.find((p) => p._id === item.product);
+                      return product?.moq ? (
+                        <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                          MOQ: {product.moq} pcs
+                        </span>
+                      ) : null;
+                    })()}
                   </td>
                   <td>
                     <span className="badge badge-slate">{item.size}</span>
@@ -125,6 +138,22 @@ export const OrderSheet = ({ cartItems, clearCart, updateItem, removeItem, total
                     ${item.totalPrice?.toFixed(2)}
                   </td>
                   <td style={{ textAlign: 'center' }}>
+                    {duplicateItem && (
+                      <button
+                        onClick={() => duplicateItem(idx)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--accent-blue)',
+                          cursor: 'pointer',
+                          padding: '4px',
+                        }}
+                        title="Duplicate item"
+                        aria-label={`Duplicate line ${idx + 1}: ${item.productName}`}
+                      >
+                        <Copy size={16} />
+                      </button>
+                    )}
                     <button
                       onClick={() => removeItem(idx)}
                       style={{
@@ -189,6 +218,9 @@ export const OrderSheet = ({ cartItems, clearCart, updateItem, removeItem, total
             </div>
           </div>
         </div>
+
+        {/* Price breakdown drawer (FE-12, display-only) */}
+        <PriceBreakdown totals={totals} />
 
         {/* Shipping Marks & Special Instructions */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>

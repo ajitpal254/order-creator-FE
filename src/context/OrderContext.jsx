@@ -81,6 +81,43 @@ export const OrderProvider = ({ children }) => {
     setCartItems((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Duplicate a line (FE-12): clone the item at `index` and insert the
+  // copy directly below the original. Lines are modelled by index in
+  // this cart (no per-line id), so the clone is a plain shallow copy —
+  // it deliberately bypasses addItem's identical-variant merge so the
+  // duplicate stays its own editable line.
+  const duplicateItem = (index) => {
+    setCartItems((prev) => {
+      const current = prev[index];
+      if (!current) return prev;
+      const updated = [...prev];
+      updated.splice(index + 1, 0, { ...current });
+      return updated;
+    });
+  };
+
+  // Replace the whole sheet with the given items (FE-12: loading an
+  // order created from a template into the creator for editing). Items
+  // are normalised exactly as addItem normalises a fresh line; an
+  // API-supplied totalPrice is kept verbatim when present.
+  const replaceItems = (items) => {
+    setCartItems(
+      (items || []).map((item) => {
+        const unitPrice = Number(item.unitPrice) || 0;
+        const qty = Number(item.quantity) || 1;
+        return {
+          ...item,
+          quantity: qty,
+          unitPrice,
+          totalPrice:
+            typeof item.totalPrice === 'number'
+              ? item.totalPrice
+              : parseFloat((qty * unitPrice).toFixed(2)),
+        };
+      })
+    );
+  };
+
   const clearCart = () => {
     setCartItems([]);
     localStorage.removeItem('hao_order_cart');
@@ -135,6 +172,8 @@ export const OrderProvider = ({ children }) => {
         addItem,
         updateItem,
         removeItem,
+        duplicateItem,
+        replaceItems,
         clearCart,
         totals,
         submitOrder,
