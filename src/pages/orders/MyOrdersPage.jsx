@@ -7,6 +7,8 @@ import { orderKeys, useMyOrders } from '../../hooks/useOrders';
 import { StatusBadge } from '../../components/StatusBadge';
 import { QuotePanel } from '../../components/order/QuotePanel';
 import { InvoicePreview } from '../../components/invoice/InvoicePreview';
+import { PayPanel } from '../../components/payments/PayPanel';
+import { ShareTrackingButton } from '../../components/tracking/ShareTrackingButton';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import { FxRateLine } from '../../components/order/FxRateLine';
 import {
@@ -447,6 +449,14 @@ export const MyOrdersPage = () => {
                       {/* Quote negotiation (quote-type orders only; the
                           panel renders nothing for regular orders) */}
                       <QuotePanel order={order} />
+
+                      {/* Payments (v0.6 F2) + public tracking link for
+                          shipped orders (the button renders nothing
+                          until the order is Dispatched) */}
+                      <div style={{ marginTop: '1rem' }}>
+                        <ShareTrackingButton order={order} />
+                      </div>
+                      <PayPanel order={order} />
 
                       {/* Shipping Marks box */}
                       {order.shippingMarks && (

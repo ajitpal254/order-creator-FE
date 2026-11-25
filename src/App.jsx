@@ -32,6 +32,9 @@ const BuyerDashboard = lazy(() =>
 const SettingsPage = lazy(() =>
   import('./pages/settings/SettingsPage').then((m) => ({ default: m.SettingsPage }))
 );
+const TrackPage = lazy(() =>
+  import('./pages/track/TrackPage').then((m) => ({ default: m.TrackPage }))
+);
 
 // Route Guard for Authenticated Users
 const ProtectedRoute = ({ children }) => {
@@ -67,6 +70,9 @@ function App() {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/signup" element={<SignupPage />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  {/* Public shipment tracking (v0.6 F2): the token in
+                      the URL is the credential — no ProtectedRoute. */}
+                  <Route path="/track/:token" element={<TrackPage />} />
 
                   {/* Protected Buyer Routes */}
                   <Route
