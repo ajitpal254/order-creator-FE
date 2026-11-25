@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { isFirebaseConfigured } from '../../firebase';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 import { 
   Wrench, 
@@ -135,17 +136,24 @@ export const LoginPage = () => {
         <button
           type="button"
           onClick={handleGoogleAuth}
-          disabled={googleLoading || loading}
+          disabled={googleLoading || loading || !isFirebaseConfigured}
+          title={
+            isFirebaseConfigured
+              ? undefined
+              : 'Google sign-in is not configured on this deployment'
+          }
           className="btn btn-secondary"
           style={{
             width: '100%',
-            marginBottom: '1.25rem',
+            marginBottom: isFirebaseConfigured ? '1.25rem' : '0.5rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '0.75rem',
             backgroundColor: '#131B2A',
             border: '1px solid var(--border-subtle)',
+            opacity: isFirebaseConfigured ? 1 : 0.55,
+            cursor: isFirebaseConfigured ? 'pointer' : 'not-allowed',
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
@@ -168,6 +176,20 @@ export const LoginPage = () => {
           </svg>
           <span>{googleLoading ? 'Connecting Google...' : 'Continue with Google'}</span>
         </button>
+
+        {!isFirebaseConfigured && (
+          <p
+            style={{
+              color: 'var(--text-muted)',
+              fontSize: '0.8rem',
+              textAlign: 'center',
+              marginBottom: '1.25rem',
+            }}
+          >
+            Google sign-in is not configured on this deployment — please sign
+            in with your username and password.
+          </p>
+        )}
 
         {/* Divider */}
         <div

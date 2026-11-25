@@ -54,47 +54,31 @@ export const AuthProvider = ({ children }) => {
   };
 
   const googleLogin = async () => {
-    try {
-      let email = '';
-      let customerName = '';
-      let firebaseUid = '';
-
-      if (auth && googleProvider) {
-        try {
-          const result = await signInWithPopup(auth, googleProvider);
-          const gUser = result.user;
-          email = gUser.email;
-          customerName = gUser.displayName || 'Google Buyer';
-          firebaseUid = gUser.uid;
-        } catch (popupErr) {
-          console.warn('[Firebase Popup]', popupErr.message);
-          // Fallback demo account prompt if popup is blocked in sandbox
-          email = prompt('Enter your Google Account Email for authentication:', 'buyer@globaltools.com');
-          if (!email) return;
-          customerName = 'Verified Google Buyer';
-        }
-      } else {
-        email = prompt('Enter your Google Account Email:', 'buyer@globaltools.com');
-        if (!email) return;
-        customerName = 'Google Verified Partner';
-      }
-
-      const res = await authApi.googleAuth({
-        email,
-        customerName,
-        firebaseUid,
-      });
-
-      if (res.success && res.token) {
-        localStorage.setItem('hao_token', res.token);
-        setToken(res.token);
-        setUser(res.user);
-        return res;
-      }
-    } catch (err) {
-      console.error('Google Auth Failed', err);
-      throw err;
+    // Firebase must be configured (VITE_FIREBASE_* env vars). Without it
+    // there is no trustworthy way to prove the Google identity, so fail
+    // with a clear error the login form can show — never fall back to
+    // asking the user to type an email (the server cannot verify that).
+    if (!auth || !googleProvider) {
+      throw new Error(
+        'Google sign-in is not available: Firebase is not configured on this deployment.'
+      );
     }
+
+    // Firebase verifies the identity with Google. The backend must only
+    // trust the signed ID token — email, name and uid are read from the
+    // verified token server-side, never from fields this client sends.
+    const result = await signInWithPopup(auth, googleProvider);
+    const idToken = await result.user.getIdToken();
+
+    const res = await authApi.googleAuth({ idToken });
+
+    if (res.success && res.token) {
+      localStorage.setItem('hao_token', res.token);
+      setToken(res.token);
+      setUser(res.user);
+      return res;
+    }
+    throw new Error(res.message || 'Google sign-in failed');
   };
 
   const logout = () => {
