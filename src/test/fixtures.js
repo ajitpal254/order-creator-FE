@@ -77,6 +77,34 @@ export const attributes = {
   categories: [{ _id: 'cat-1', name: 'Spanners' }],
 };
 
+// Order templates (FE-12). The template carries the same draft payload
+// shape the order-creation API accepts; create-order returns the order
+// built from it (myOrders[0] below).
+export const templates = [
+  {
+    _id: 'tpl-1',
+    name: 'Apex standard spanner order',
+    items: [
+      {
+        product: 'prod-1',
+        productName: 'Combination Spanner Set 14pc',
+        sku: 'HAO-CS-014',
+        size: '8-19mm',
+        finish: 'Chrome Plated',
+        color: 'Industrial Red',
+        brand: 'H.A. Overseas',
+        packaging: 'Master Carton (Standard Export)',
+        customMarking: '',
+        quantity: 200,
+        unitPrice: 12.5,
+        totalPrice: 2500.0,
+      },
+    ],
+    shippingMarks: 'APEX / LOT 44',
+    specialInstructions: '',
+  },
+];
+
 // One order whose line total and grand total are fixture values straight
 // from the (mocked) API: 200 pcs x $12.50 = $2500.00 totalPrice, and the
 // order-level totalAmount is the same figure.
