@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal } from '../../components/Modal';
 import { QuotePanel } from '../order/QuotePanel';
 import { PayPanel } from '../payments/PayPanel';
+import { DocumentsPanel } from '../documents/DocumentsPanel';
 
 export const OrderStatusModal = ({ selectedOrderForStatus, setSelectedOrderForStatus, newStatus, setNewStatus, statusNote, setStatusNote, handleUpdateStatus, onOrderUpdated }) => (
   <Modal
@@ -45,6 +46,10 @@ export const OrderStatusModal = ({ selectedOrderForStatus, setSelectedOrderForSt
         'proof_submitted' status. This modal is the order-detail area
         the OrdersTab rows open, so the panel lives here. */}
     <PayPanel order={selectedOrderForStatus} staff />
+
+    {/* Order documents vault (v0.8 F1 — FEAT-08): staff generate /
+        upload / delete for this order's export documents. */}
+    <DocumentsPanel order={selectedOrderForStatus} staff />
 
     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
       <button
