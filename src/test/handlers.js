@@ -73,3 +73,12 @@ export const handlers = [
     HttpResponse.json({ ok: true })
   ),
 ];
+
+// ---- v0.9 F1 Admin Console v2 (appended) ----
+// Note: individual v0.9 tests mostly use server.use(...) locally; these
+// defaults keep the new endpoints from being unhandled elsewhere.
+handlers.push(
+  http.get(`${API_BASE}/admin/audit-logs`, () =>
+    HttpResponse.json({ success: true, count: 0, total: 0, page: 1, limit: 50, data: [] })
+  ),
+);

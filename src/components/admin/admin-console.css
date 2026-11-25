@@ -1,0 +1,12 @@
+/* Admin Console v2 (v0.9 F1) — kanban, audit, saved filters.
+   Dark glassmorphism; tokens from src/styles/tokens.css. */
+.kanban-board { display:flex; gap:1rem; overflow-x:auto; padding-bottom:1rem; }
+.kanban-column { min-width:230px; flex:1 0 230px; background:var(--bg-glass, rgba(255,255,255,0.03)); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.75rem; }
+.kanban-column h4 { color:#fff; margin:0 0 0.75rem; font-size:0.9rem; display:flex; justify-content:space-between; }
+.kanban-card { background:var(--bg-card-hover, rgba(255,255,255,0.05)); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:0.7rem; margin-bottom:0.6rem; color:var(--text-primary); }
+.kanban-card-title { font-weight:700; color:#fff; }
+.kanban-card-meta { font-size:0.78rem; color:var(--text-muted); }
+.kanban-card-total { font-weight:800; color:var(--accent-amber); text-align:right; }
+.admin-console-toolbar { display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem; }
+.bulk-results { margin-top:0.75rem; font-size:0.85rem; }
+.audit-details { white-space:pre-wrap; word-break:break-word; font-size:0.72rem; max-width:420px; }
