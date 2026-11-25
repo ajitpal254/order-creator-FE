@@ -9,6 +9,18 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Security headers for all routes (SEC-14, v0.2)
+# CSP is Report-Only on purpose: violations surface in the browser console
+# without breaking the live app while the policy is validated.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://order-creator-be.onrender.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
 # SPA Fallback rule so React Router handles deep routes (/order-creator, /catalog, /admin, etc.)
 [[redirects]]
   from = "/*"

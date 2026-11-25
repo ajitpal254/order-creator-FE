@@ -7,6 +7,7 @@ import {
 } from '../../api/client';
 import { StatusBadge } from '../../components/StatusBadge';
 import { Modal } from '../../components/Modal';
+import { ListSkeleton } from '../../components/ListSkeleton';
 import { 
   ShieldCheck, 
   Package, 
@@ -435,8 +436,11 @@ export const AdminDashboard = () => {
           </button>
         </div>
 
+        {/* Loading skeleton while dashboard data is fetched (FE-16) */}
+        {loading && <ListSkeleton rows={4} />}
+
         {/* TAB 1: ORDERS MANAGEMENT */}
-        {activeTab === 'orders' && (
+        {!loading && activeTab === 'orders' && (
           <div className="glass-card">
             {/* Filters */}
             <div
@@ -559,7 +563,7 @@ export const AdminDashboard = () => {
         )}
 
         {/* TAB 2: PRODUCTS CATALOG MANAGEMENT */}
-        {activeTab === 'products' && (
+        {!loading && activeTab === 'products' && (
           <div className="glass-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <div>
@@ -667,7 +671,7 @@ export const AdminDashboard = () => {
         )}
 
         {/* TAB 3: DYNAMIC ATTRIBUTES MANAGEMENT */}
-        {activeTab === 'attributes' && (
+        {!loading && activeTab === 'attributes' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
             {/* Finishes Manager */}
             <div className="glass-card">
@@ -885,7 +889,7 @@ export const AdminDashboard = () => {
         )}
 
         {/* TAB 4: REGISTERED CUSTOMERS DIRECTORY */}
-        {activeTab === 'customers' && (
+        {!loading && activeTab === 'customers' && (
           <div className="glass-card">
             <h3 style={{ color: '#FFFFFF', fontSize: '1.2rem', marginBottom: '1.25rem' }}>
               Registered Importers & Wholesale Buyers

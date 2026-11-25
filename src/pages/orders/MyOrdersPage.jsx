@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { orderApi } from '../../api/client';
 import { StatusBadge } from '../../components/StatusBadge';
+import { ListSkeleton } from '../../components/ListSkeleton';
 import { 
   Package, 
   FileDown, 
@@ -86,9 +87,7 @@ export const MyOrdersPage = () => {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--accent-amber)' }}>
-            Loading your orders...
-          </div>
+          <ListSkeleton rows={3} />
         ) : orders.length === 0 ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
             <Package size={54} color="var(--text-muted)" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
