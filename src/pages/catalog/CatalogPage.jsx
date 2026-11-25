@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productApi, attributeApi } from '../../api/client';
 import { useOrder } from '../../context/OrderContext';
+import { ListSkeleton } from '../../components/ListSkeleton';
 import { 
   Search, 
   Filter, 
@@ -125,11 +126,7 @@ export const CatalogPage = () => {
 
         {/* Product Grid */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--text-muted)' }}>
-            <div className="animate-glow" style={{ fontSize: '1.2rem', color: 'var(--accent-amber)' }}>
-              Loading H.A. Overseas Catalog...
-            </div>
-          </div>
+          <ListSkeleton rows={6} variant="grid" />
         ) : products.length === 0 ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '3.5rem 1rem' }}>
             <Box size={48} color="var(--text-muted)" style={{ margin: '0 auto 1rem' }} />
