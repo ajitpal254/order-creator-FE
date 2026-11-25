@@ -37,9 +37,25 @@ export const LoginPage = () => {
 
   const redirectPath = location.state?.from?.pathname || '/order-creator';
 
+  // v0.4 (FE-13): buyer-role users land on their dashboard after login.
+  // Staff keep their existing landing — admins to /admin, other staff to
+  // the page they were sent from (or the order creator by default).
+  const STAFF_ROLES = [
+    'admin',
+    'sales_manager',
+    'production_supervisor',
+    'qc_inspector',
+    'shipping_officer',
+    'super_admin',
+  ];
+
   const navigateAfterLogin = (res) => {
     if (res.user.role === 'admin') {
       navigate('/admin');
+    } else if (location.state?.from?.pathname) {
+      navigate(redirectPath);
+    } else if (!STAFF_ROLES.includes(res.user.role)) {
+      navigate('/dashboard');
     } else {
       navigate(redirectPath);
     }
@@ -108,8 +124,8 @@ export const LoginPage = () => {
     setGoogleLoading(true);
     setError(null);
     try {
-      await googleLogin();
-      navigate(redirectPath);
+      const res = await googleLogin();
+      navigateAfterLogin(res);
     } catch (err) {
       setError(err.message || 'Google sign-in could not be completed.');
     } finally {

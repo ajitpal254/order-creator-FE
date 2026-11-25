@@ -33,6 +33,7 @@ const renderLogin = () =>
         <OrderProvider>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/dashboard" element={<div>Buyer Dashboard Landing</div>} />
             <Route path="/order-creator" element={<div>Order Creator Landing</div>} />
             <Route path="/admin" element={<div>Admin Landing</div>} />
           </Routes>
@@ -114,8 +115,8 @@ describe('Two-factor login challenge', () => {
     await user.type(codeInput, '123456');
     await user.click(screen.getByRole('button', { name: /verify code/i }));
 
-    // Buyer accounts land on the order creator, same as a normal login.
-    expect(await screen.findByText('Order Creator Landing')).toBeInTheDocument();
+    // Buyer accounts land on their dashboard, same as a normal login (v0.4).
+    expect(await screen.findByText('Buyer Dashboard Landing')).toBeInTheDocument();
     expect(localStorage.getItem('hao_token')).toBe(loginSuccess.token);
     expect(seenBody).toEqual({ challengeToken: 'challenge-token-1', code: '123456' });
   });

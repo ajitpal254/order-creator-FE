@@ -11,7 +11,9 @@ import {
   ShieldCheck, 
   Package, 
   Layers,
-  FileText
+  FileText,
+  LayoutDashboard,
+  Settings
 } from 'lucide-react';
 
 export const Navbar = () => {
@@ -109,6 +111,20 @@ export const Navbar = () => {
             )}
           </Link>
 
+          {isAuthenticated && !isAdmin && (
+            <Link
+              to="/dashboard"
+              className="btn btn-secondary btn-sm"
+              style={{
+                borderColor: isActive('/dashboard') ? 'var(--accent-amber)' : 'transparent',
+                color: isActive('/dashboard') ? '#FFFFFF' : 'var(--text-secondary)',
+              }}
+            >
+              <LayoutDashboard size={16} />
+              <span>Dashboard</span>
+            </Link>
+          )}
+
           {isAuthenticated && (
             <Link
               to="/my-orders"
@@ -158,6 +174,14 @@ export const Navbar = () => {
                   {user.businessName || user.country}
                 </span>
               </div>
+              <Link
+                to="/settings"
+                className="btn btn-secondary btn-sm"
+                title="Settings"
+                style={{ padding: '0.4rem 0.6rem' }}
+              >
+                <Settings size={16} />
+              </Link>
               <button
                 onClick={() => {
                   logout();
