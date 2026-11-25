@@ -12,4 +12,12 @@ import { apiRequest } from './client';
 export const buyerOrdersApi = {
   getMyOrdersIncludingDrafts: () =>
     apiRequest('/orders/my-orders?includeDrafts=true'),
+
+  // Reorder (v0.5 F3): POST /api/orders/:id/reorder asks the backend to
+  // clone a past order into a NEW Draft order and returns it. This is
+  // distinct from the buyer dashboard's client-side "Order again" clone
+  // (which builds a create payload itself) — here the server owns the
+  // copy, so the client sends nothing but the order id.
+  reorderOrder: (id) =>
+    apiRequest(`/orders/${id}/reorder`, { method: 'POST' }),
 };

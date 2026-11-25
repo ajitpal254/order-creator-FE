@@ -1,35 +1,113 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { orderApi } from '../../api/client';
-import { useMyOrders } from '../../hooks/useOrders';
+import { buyerOrdersApi } from '../../api/buyerOrders';
+import { orderKeys, useMyOrders } from '../../hooks/useOrders';
 import { StatusBadge } from '../../components/StatusBadge';
 import { ListSkeleton } from '../../components/ListSkeleton';
-import { 
-  Package, 
-  FileDown, 
-  ChevronDown, 
-  ChevronUp, 
-  ShoppingCart, 
-  Clock, 
-  Boxes, 
-  Weight, 
+import { FxRateLine } from '../../components/order/FxRateLine';
+import {
+  Package,
+  FileDown,
+  ChevronDown,
+  ChevronUp,
+  ShoppingCart,
+  Clock,
+  Boxes,
+  Weight,
   ArrowRight,
-  Truck
+  Truck,
+  RotateCcw,
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
+
+const bannerBaseStyle = {
+  padding: '1rem',
+  borderRadius: 'var(--radius-md)',
+  marginBottom: '1.5rem',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.75rem',
+  fontSize: '0.9rem',
+};
 
 export const MyOrdersPage = () => {
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
+  const [reorderError, setReorderError] = useState(null);
+  const [reorderMessage, setReorderMessage] = useState(null);
+
+  const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  // After a reorder, the page lands back here with ?highlight=<new id>
+  // and the new draft's card is highlighted (see below).
+  const highlightId = searchParams.get('highlight');
 
   // Read fetching via TanStack Query (FE-07); the api client is unchanged
   // and invoice totals still come straight from this API response.
   const {
-    data: orders = [],
+    data: baseOrders = [],
     isLoading: loading,
     isError,
     error,
     refetch,
   } = useMyOrders();
+
+  // The default list excludes Draft orders (the backend drops them
+  // unless ?includeDrafts=true), so a freshly reordered draft would be
+  // invisible here. Only while a highlight target is in the URL do we
+  // also fetch the drafts-included list and merge it in — normal visits
+  // to My Orders behave exactly as before.
+  const { data: ordersWithDrafts } = useQuery({
+    queryKey: ['orders', 'my', 'with-drafts'],
+    queryFn: async () => {
+      const res = await buyerOrdersApi.getMyOrdersIncludingDrafts();
+      return res?.success ? res.data : [];
+    },
+    enabled: Boolean(highlightId),
+  });
+
+  const orders = useMemo(() => {
+    if (!highlightId || !ordersWithDrafts) return baseOrders;
+    const seen = new Set(baseOrders.map((o) => o._id));
+    return [...baseOrders, ...ordersWithDrafts.filter((o) => !seen.has(o._id))];
+  }, [baseOrders, ordersWithDrafts, highlightId]);
+
+  // Reorder (v0.5 F3): POST /api/orders/:id/reorder creates a NEW Draft
+  // order server-side. On success we land back on My Orders (this page)
+  // with the new draft highlighted via the ?highlight= query param.
+  const reorderMutation = useMutation({
+    mutationFn: (order) => buyerOrdersApi.reorderOrder(order._id),
+    onSuccess: (res, order) => {
+      const newOrder = res?.order || res?.data || (res?._id ? res : null);
+      setReorderError(null);
+      setReorderMessage(
+        newOrder?.orderNumber
+          ? `New draft ${newOrder.orderNumber} created from ${order.orderNumber} — it is highlighted below.`
+          : `New draft created from ${order.orderNumber} — it is highlighted below.`
+      );
+      if (newOrder?._id) {
+        setSearchParams({ highlight: newOrder._id }, { replace: true });
+      }
+      queryClient.invalidateQueries({ queryKey: orderKeys.my });
+      queryClient.invalidateQueries({ queryKey: ['orders', 'my', 'with-drafts'] });
+    },
+    onError: (err, order) => {
+      setReorderMessage(null);
+      setReorderError(
+        `Could not reorder ${order.orderNumber}: ${err.message || 'Something went wrong.'}`
+      );
+    },
+  });
+
+  const handleReorder = (e, order) => {
+    e.stopPropagation();
+    setReorderError(null);
+    setReorderMessage(null);
+    reorderMutation.mutate(order);
+  };
 
   const handleDownloadPdf = async (e, order) => {
     e.stopPropagation();
@@ -78,6 +156,34 @@ export const MyOrdersPage = () => {
           </Link>
         </div>
 
+        {reorderError && (
+          <div
+            role="alert"
+            style={{
+              ...bannerBaseStyle,
+              backgroundColor: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
+              color: '#F87171',
+            }}
+          >
+            <AlertCircle size={20} style={{ flexShrink: 0 }} />
+            <span>{reorderError}</span>
+          </div>
+        )}
+        {reorderMessage && (
+          <div
+            style={{
+              ...bannerBaseStyle,
+              backgroundColor: 'rgba(34, 197, 94, 0.15)',
+              border: '1px solid rgba(34, 197, 94, 0.35)',
+              color: '#4ADE80',
+            }}
+          >
+            <CheckCircle2 size={20} style={{ flexShrink: 0 }} />
+            <span>{reorderMessage}</span>
+          </div>
+        )}
+
         {loading ? (
           <ListSkeleton rows={3} />
         ) : isError ? (
@@ -106,11 +212,13 @@ export const MyOrdersPage = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {orders.map((order) => {
               const isExpanded = expandedOrderId === order._id;
+              const isHighlighted = Boolean(highlightId) && order._id === highlightId;
 
               return (
                 <div
                   key={order._id}
-                  className="glass-card"
+                  data-highlighted={isHighlighted ? 'true' : undefined}
+                  className={isHighlighted ? 'glass-card highlight' : 'glass-card'}
                   style={{
                     padding: '1.5rem',
                     transition: 'border-color 0.2s ease',
@@ -149,6 +257,9 @@ export const MyOrdersPage = () => {
                             {order.orderNumber}
                           </span>
                           <StatusBadge status={order.status} />
+                          {isHighlighted && (
+                            <span className="badge badge-amber">New draft</span>
+                          )}
                         </div>
                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                           Placed on {new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
@@ -165,9 +276,31 @@ export const MyOrdersPage = () => {
                       <div style={{ textAlign: 'right' }}>
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Order Value (FOB):</span>
                         <b style={{ color: 'var(--accent-amber)', fontSize: '1.1rem' }}>${order.totalAmount?.toFixed(2)} USD</b>
+                        <FxRateLine order={order} />
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        {order.status !== 'Draft' && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleReorder(e, order)}
+                            disabled={
+                              reorderMutation.isPending &&
+                              reorderMutation.variables?._id === order._id
+                            }
+                            className="btn btn-secondary btn-sm"
+                            title="Reorder as a new draft"
+                          >
+                            <RotateCcw size={16} />
+                            <span>
+                              {reorderMutation.isPending &&
+                              reorderMutation.variables?._id === order._id
+                                ? 'Reordering...'
+                                : 'Reorder'}
+                            </span>
+                          </button>
+                        )}
+
                         <button
                           type="button"
                           onClick={(e) => handleDownloadPdf(e, order)}
