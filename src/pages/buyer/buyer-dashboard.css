@@ -1,0 +1,200 @@
+/* Buyer dashboard (FE-13). Component-scoped styles for
+   src/pages/buyer/BuyerDashboard.jsx and src/components/buyer/*.
+   Everything is driven by the design tokens in src/styles/tokens.css
+   and the shared .glass-card / .btn / .badge classes — no global rules
+   are added or overridden here. */
+
+.buyer-dashboard {
+  padding: 2.5rem 0 4rem;
+}
+
+.buyer-dashboard__header {
+  margin-bottom: 2rem;
+}
+
+.buyer-dashboard__title {
+  font-size: 2.2rem;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.buyer-dashboard__subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.buyer-dashboard__section {
+  margin-bottom: 2.5rem;
+}
+
+.buyer-dashboard__section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.25rem;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.buyer-dashboard__section-title svg {
+  color: var(--accent-amber);
+}
+
+.buyer-dashboard__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.buyer-dashboard__empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.buyer-dashboard__empty h3 {
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.buyer-dashboard__error-banner {
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+/* Order card (active orders / order again) */
+.buyer-order-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+}
+
+.buyer-order-card__main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.buyer-order-card__icon {
+  width: 44px;
+  height: 44px;
+  background-color: #111827;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.buyer-order-card__number-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.buyer-order-card__number {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.buyer-order-card__date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.buyer-order-card__side {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.buyer-order-card__total {
+  text-align: right;
+}
+
+.buyer-order-card__total-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.buyer-order-card__total-value {
+  color: var(--accent-amber);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.buyer-order-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Awaiting-action rows */
+.buyer-action-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.buyer-action-item__main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.buyer-action-item__heading {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.buyer-action-item__detail {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.buyer-action-item__figures {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  text-align: right;
+}
+
+.buyer-action-item__figure-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.buyer-action-item__figure-value {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.buyer-action-item__figure-value--due {
+  color: var(--accent-rose);
+}
