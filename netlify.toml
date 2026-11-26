@@ -21,6 +21,14 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
+# Missing asset files must 404, never fall through to the SPA HTML —
+# an HTML body cached under a .js URL (immutable /assets/* headers)
+# poisons the browser cache and blanks lazy-loaded pages.
+[[redirects]]
+  from = "/assets/*"
+  to = "/404.html"
+  status = 404
+
 # SPA Fallback rule so React Router handles deep routes (/order-creator, /catalog, /admin, etc.)
 [[redirects]]
   from = "/*"

@@ -1,1 +1,6 @@
+# Missing asset files must 404, never fall through to the SPA HTML —
+# an HTML body cached under a .js URL (immutable /assets/* headers)
+# poisons the browser cache and blanks lazy-loaded pages.
+/assets/*    /404.html    404
+
 /*    /index.html   200
