@@ -220,6 +220,7 @@ export const en = {
     subtitle: 'Manage your account security and notification preferences.',
     twoFactorTitle: 'Two-factor authentication',
     notificationsTitle: 'Notifications',
+    developerTitle: 'Developer',
   },
   status: {
     draft: 'Draft',
