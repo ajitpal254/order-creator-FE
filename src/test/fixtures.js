@@ -113,6 +113,70 @@ export const assistantReply = {
   chips: ['Track my order', 'Talk to a person'],
 };
 
+// Assistant proposals (v1.0 FEAT-16 Stages 3–4 — F2). Line-item figures
+// (unitPrice) are payload values returned by the mocked API and rendered
+// verbatim — never recomputed.
+export const assistantProposal = {
+  id: 'prop-1',
+  kind: 'order-draft',
+  summary: 'Draft order: 200 × Combination Spanner Set 14pc, plus 10 × Mystery Widget',
+  expiresAt: '2099-01-01T00:00:00.000Z',
+  payload: {
+    items: [
+      {
+        product: 'prod-1',
+        productName: 'Combination Spanner Set 14pc',
+        sku: 'HAO-CS-014',
+        quantity: 200,
+        matched: true,
+        unitPrice: 12.5,
+      },
+      {
+        productName: 'Mystery Widget',
+        quantity: 10,
+        matched: false,
+      },
+    ],
+  },
+};
+
+export const assistantExpiredProposal = {
+  ...assistantProposal,
+  id: 'prop-expired',
+  summary: 'Draft order: 200 × Combination Spanner Set 14pc',
+  expiresAt: '2020-01-01T00:00:00.000Z',
+};
+
+export const assistantExtractedProposal = {
+  id: 'prop-po-1',
+  kind: 'order-draft',
+  summary: 'Extracted from PO: 2 lines (1 matched, 1 unmatched)',
+  expiresAt: '2099-01-01T00:00:00.000Z',
+  payload: {
+    items: [
+      {
+        product: 'prod-2',
+        productName: 'Lever Grease Gun 400cc',
+        sku: 'HAO-GG-400',
+        quantity: 50,
+        matched: true,
+        unitPrice: 9.75,
+      },
+      {
+        productName: 'Unrecognised Sprocket XL',
+        quantity: 5,
+        matched: false,
+      },
+    ],
+  },
+};
+
+export const assistantCreatedOrder = {
+  _id: 'order-draft-1',
+  orderNumber: 'HAO-2026-100099',
+  status: 'Draft',
+};
+
 export const assistantFaq = [
   {
     q: 'What is the minimum order quantity?',
