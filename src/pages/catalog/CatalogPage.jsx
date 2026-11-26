@@ -5,6 +5,8 @@ import { useOrder } from '../../context/OrderContext';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import { RfqForm } from '../../components/catalog/RfqForm';
 import { usePageMeta } from '../../lib/pageMeta';
+import { useTranslation } from 'react-i18next';
+import { formatNumber } from '../../i18n/format.js';
 import { 
   Search, 
   Filter, 
@@ -19,6 +21,7 @@ import {
 } from 'lucide-react';
 
 export const CatalogPage = () => {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProductForModal, setSelectedProductForModal] = useState(null);
@@ -71,13 +74,13 @@ export const CatalogPage = () => {
         <div style={{ marginBottom: '2.5rem' }}>
           <div className="badge badge-amber" style={{ marginBottom: '0.75rem' }}>
             <Layers size={14} />
-            <span>EXPORT TOOLING DIRECTORY</span>
+            <span>{t('catalog.badge')}</span>
           </div>
           <h1 style={{ fontSize: '2.4rem', color: '#FFFFFF', marginBottom: '0.5rem' }}>
-            H.A. Overseas Tools Catalog
+            {t('catalog.title')}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-            Explore export-grade hand tools, grease guns, wrenches, and workshop hardware available for custom configuration.
+            {t('catalog.subtitle')}
           </p>
         </div>
 
@@ -103,7 +106,7 @@ export const CatalogPage = () => {
             />
             <input
               type="text"
-              placeholder="Search by SKU, tool name, or description..."
+              placeholder={t('catalog.searchPlaceholder')}
               className="form-control"
               style={{ paddingLeft: '2.5rem' }}
               value={searchTerm}
@@ -117,7 +120,7 @@ export const CatalogPage = () => {
               onClick={() => setSelectedCategory('All')}
               className={`btn btn-sm ${selectedCategory === 'All' ? 'btn-primary' : 'btn-secondary'}`}
             >
-              All Categories
+              {t('catalog.allCategories')}
             </button>
             {categories.map((c) => (
               <button
@@ -137,20 +140,20 @@ export const CatalogPage = () => {
         ) : isError ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '3.5rem 1rem' }}>
             <Box size={48} color="var(--text-muted)" style={{ margin: '0 auto 1rem' }} />
-            <h3 style={{ color: '#FFFFFF', marginBottom: '0.5rem' }}>Failed to load catalog</h3>
+            <h3 style={{ color: '#FFFFFF', marginBottom: '0.5rem' }}>{t('catalog.loadFailed')}</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-              {error?.message || 'Something went wrong while loading products.'}
+              {error?.message || t('catalog.loadFailedDefault')}
             </p>
             <button type="button" onClick={() => refetch()} className="btn btn-primary">
-              Try Again
+              {t('common.tryAgain')}
             </button>
           </div>
         ) : products.length === 0 ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '3.5rem 1rem' }}>
             <Box size={48} color="var(--text-muted)" style={{ margin: '0 auto 1rem' }} />
-            <h3 style={{ color: '#FFFFFF', marginBottom: '0.5rem' }}>No matching products found</h3>
+            <h3 style={{ color: '#FFFFFF', marginBottom: '0.5rem' }}>{t('catalog.noProducts')}</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              Try searching with another keyword or select All Categories.
+              {t('catalog.noProductsHint')}
             </p>
           </div>
         ) : (
@@ -210,7 +213,7 @@ export const CatalogPage = () => {
                       color: '#090D16',
                     }}
                   >
-                    MOQ: {product.moq || 50} pcs
+                    {t('catalog.moq', { count: formatNumber(product.moq || 50) })}
                   </div>
                 </div>
 
@@ -247,22 +250,22 @@ export const CatalogPage = () => {
                       ))}
                       {product.allowedFinishes?.length > 2 && (
                         <span className="badge badge-slate" style={{ fontSize: '0.65rem' }}>
-                          +{product.allowedFinishes.length - 2} Finishes
+                          {t('catalog.moreFinishes', { count: formatNumber(product.allowedFinishes.length - 2) })}
                         </span>
                       )}
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                       <div>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Base FOB Price:</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('catalog.baseFobPrice')}</span>
                         <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-amber)' }}>
-                          ${(product.basePrice || 0).toFixed(2)} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>/ pc</span>
+                          ${(product.basePrice || 0).toFixed(2)} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('catalog.perPc')}</span>
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Packing:</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('catalog.packing')}</span>
                         <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#FFFFFF' }}>
-                          {product.pcsPerCarton || 20} pcs/ctn
+                          {t('catalog.pcsPerCarton', { count: formatNumber(product.pcsPerCarton || 20) })}
                         </div>
                       </div>
                     </div>
@@ -285,13 +288,13 @@ export const CatalogPage = () => {
                         }}
                       >
                         {product.leadTimeDays != null && (
-                          <span>Lead time: {product.leadTimeDays} days</span>
+                          <span>{t('catalog.leadTime', { days: formatNumber(product.leadTimeDays) })}</span>
                         )}
                         {product.stockQuantity != null &&
                           (product.stockQuantity > 0 ? (
-                            <span>In stock: {product.stockQuantity} pcs</span>
+                            <span>{t('catalog.inStock', { count: formatNumber(product.stockQuantity) })}</span>
                           ) : (
-                            <span style={{ color: 'var(--accent-amber)' }}>Out of stock</span>
+                            <span style={{ color: 'var(--accent-amber)' }}>{t('catalog.outOfStock')}</span>
                           ))}
                         {product.availabilityNote && (
                           <span>{product.availabilityNote}</span>
@@ -305,7 +308,7 @@ export const CatalogPage = () => {
                       style={{ width: '100%' }}
                     >
                       <ShoppingCart size={16} />
-                      <span>Configure & Order</span>
+                      <span>{t('catalog.configureAndOrder')}</span>
                     </button>
                   </div>
                 </div>

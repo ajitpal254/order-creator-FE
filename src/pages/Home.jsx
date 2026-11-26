@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   Wrench, 
   ShoppingCart, 
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 
 export const Home = () => {
+  const { t } = useTranslation();
   return (
     <div>
       {/* Hero Section */}
@@ -34,7 +36,7 @@ export const Home = () => {
               style={{ marginBottom: '1.25rem', padding: '0.35rem 0.85rem' }}
             >
               <Sparkles size={14} />
-              <span>H.A. OVERSEAS — DIRECT EXPORT MANUFACTURING</span>
+              <span>{t('home.badge')}</span>
             </div>
 
             <h1
@@ -47,7 +49,7 @@ export const Home = () => {
                 letterSpacing: '-0.03em',
               }}
             >
-              Precision Hand Tools & Grease Guns{' '}
+              {t('home.heroTitleStart')}{' '}
               <span
                 style={{
                   background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #EF4444 100%)',
@@ -55,7 +57,7 @@ export const Home = () => {
                   WebkitTextFillColor: 'transparent',
                 }}
               >
-                Custom Order Creator
+                {t('home.heroTitleAccent')}
               </span>
             </h1>
 
@@ -69,17 +71,17 @@ export const Home = () => {
                 margin: '0 auto 2.5rem',
               }}
             >
-              Configure bulk manufacturing orders in real-time. Select sizes, electro-plated finishes, custom brand coatings, packaging cartons, and generate instant export proforma quotes.
+              {t('home.heroSubtitle')}
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <Link to="/order-creator" className="btn btn-primary btn-lg">
                 <ShoppingCart size={20} />
-                <span>Launch Order Creator</span>
+                <span>{t('home.launchOrderCreator')}</span>
               </Link>
               <Link to="/catalog" className="btn btn-secondary btn-lg">
                 <Layers size={20} />
-                <span>Explore Catalog</span>
+                <span>{t('home.exploreCatalog')}</span>
               </Link>
             </div>
           </div>
@@ -90,9 +92,9 @@ export const Home = () => {
       <section style={{ padding: '4rem 0', backgroundColor: '#090D16' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Factory-Grade Customization Controls</h2>
+            <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{t('home.pillarsTitle')}</h2>
             <p style={{ color: 'var(--text-secondary)' }}>
-              Configure your exact distributor requirements with dynamic attributes
+              {t('home.pillarsSubtitle')}
             </p>
           </div>
 
@@ -120,9 +122,9 @@ export const Home = () => {
               >
                 <Settings2 size={24} color="#F59E0B" />
               </div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Finishes & Coatings</h3>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{t('home.finishesTitle')}</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                Choose between Mirror Chrome Plated, Black Manganese Phosphate, Satin Anti-Slip Matte, Powder Coated, and Yellow/Clear Zinc Plating.
+                {t('home.finishesText')}
               </p>
             </div>
 
@@ -143,9 +145,9 @@ export const Home = () => {
               >
                 <Zap size={24} color="#38BDF8" />
               </div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Colorway & Branding</h3>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{t('home.brandingTitle')}</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                Standard Industrial Red, Cobalt Blue, Safety Yellow, Tactical Black, or your custom buyer private label laser engraved on tools.
+                {t('home.brandingText')}
               </p>
             </div>
 
@@ -166,9 +168,9 @@ export const Home = () => {
               >
                 <FileCheck2 size={24} color="#10B981" />
               </div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Instant Export Proforma & PDF</h3>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{t('home.proformaTitle')}</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                Live calculation of estimated gross weights, master carton counts, FOB values, and downloadable purchase orders with shipping marks.
+                {t('home.proformaText')}
               </p>
             </div>
           </div>
@@ -189,13 +191,13 @@ export const Home = () => {
             }}
           >
             <div>
-              <h2 style={{ fontSize: '1.75rem' }}>Premier Manufacturing Categories</h2>
+              <h2 style={{ fontSize: '1.75rem' }}>{t('home.categoriesTitle')}</h2>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                Engineered to exceed DIN, ISO, and ANSI industrial standards
+                {t('home.categoriesSubtitle')}
               </p>
             </div>
             <Link to="/catalog" className="btn btn-outline btn-sm">
-              <span>View Full Catalog</span>
+              <span>{t('home.viewFullCatalog')}</span>
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -209,27 +211,27 @@ export const Home = () => {
           >
             {[
               {
-                title: 'Heavy-Duty Grease Guns',
-                tag: '10,000 PSI Peak',
-                desc: 'Lever & Pistol Grip guns, flexible hoses & 4-jaw couplers',
+                title: t('home.categoryGreaseGunsTitle'),
+                tag: t('home.categoryGreaseGunsTag'),
+                desc: t('home.categoryGreaseGunsDesc'),
                 image: 'https://haoverseas.com/img-products/122.jpg',
               },
               {
-                title: 'Spanners & Wrenches',
-                tag: 'DIN 3113 Standard',
-                desc: 'Drop forged Chrome Vanadium (Cr-V) combination spanner sets',
+                title: t('home.categorySpannersTitle'),
+                tag: t('home.categorySpannersTag'),
+                desc: t('home.categorySpannersDesc'),
                 image: 'https://haoverseas.com/img-products/com-span.jpg',
               },
               {
-                title: 'Pipe Tools & Bench Vices',
-                tag: 'Ductile Cast Iron',
-                desc: 'Stillson wrenches, heavy bench vices with 360° swivel base',
+                title: t('home.categoryPipeToolsTitle'),
+                tag: t('home.categoryPipeToolsTag'),
+                desc: t('home.categoryPipeToolsDesc'),
                 image: 'https://haoverseas.com/img-products/118.jpg',
               },
               {
-                title: 'High Leverage Pliers',
-                tag: 'Induction Hardened',
-                desc: 'Combination pliers, long nose, water pump & side cutters',
+                title: t('home.categoryPliersTitle'),
+                tag: t('home.categoryPliersTag'),
+                desc: t('home.categoryPliersDesc'),
                 image: 'https://haoverseas.com/img-products/130.jpg',
               },
             ].map((cat, idx) => (
@@ -263,7 +265,7 @@ export const Home = () => {
                     {cat.desc}
                   </p>
                   <Link to="/order-creator" className="btn btn-secondary btn-sm" style={{ width: '100%' }}>
-                    Configure Order
+                    {t('home.configureOrder')}
                   </Link>
                 </div>
               </div>
@@ -284,7 +286,7 @@ export const Home = () => {
             }}
           >
             <h2 style={{ fontSize: '2.2rem', marginBottom: '1rem', color: '#FFFFFF' }}>
-              Ready to create your custom tool order?
+              {t('home.ctaTitle')}
             </h2>
             <p
               style={{
@@ -294,15 +296,15 @@ export const Home = () => {
                 margin: '0 auto 2rem',
               }}
             >
-              Sign in with your business account to access wholesale factory prices, custom packaging markings, and submit production orders directly to H.A. Overseas.
+              {t('home.ctaText')}
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <Link to="/order-creator" className="btn btn-primary btn-lg">
                 <Wrench size={20} />
-                <span>Open Order Creator</span>
+                <span>{t('home.openOrderCreator')}</span>
               </Link>
               <Link to="/signup" className="btn btn-secondary btn-lg">
-                <span>Create Buyer Account</span>
+                <span>{t('home.createBuyerAccount')}</span>
               </Link>
             </div>
           </div>
