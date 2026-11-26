@@ -10,6 +10,7 @@ import { OrderSheet } from '../../components/order/OrderSheet';
 import { OrderSuccessModal } from '../../components/order/OrderSuccessModal';
 import { BulkImportModal } from '../../components/order/BulkImportModal';
 import { TemplateControls } from '../../components/order/TemplateControls';
+import { CompanySelector } from '../../components/order/CompanySelector';
 
 export const OrderCreatorPage = () => {
   const { user, isAuthenticated } = useAuth();
@@ -232,6 +233,13 @@ const handleFinalSubmit = async () => {
             onNotice={handleToolsNotice}
           />
         </div>
+
+        {/* Company selector (v0.9 F3): renders only when the buyer
+            belongs to at least one company. */}
+        <CompanySelector
+          value={orderMetadata.companyId || ''}
+          onChange={(companyId) => setOrderMetadata({ ...orderMetadata, companyId })}
+        />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
           {/* TOP SECTION: Configurator Tool Box */}

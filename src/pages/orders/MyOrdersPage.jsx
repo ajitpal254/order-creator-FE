@@ -5,6 +5,7 @@ import { orderApi } from '../../api/client';
 import { buyerOrdersApi } from '../../api/buyerOrders';
 import { orderKeys, useMyOrders } from '../../hooks/useOrders';
 import { StatusBadge } from '../../components/StatusBadge';
+import { ApprovalStatusChip } from '../../components/buyer/ApprovalStatusChip';
 import { QuotePanel } from '../../components/order/QuotePanel';
 import { InvoicePreview } from '../../components/invoice/InvoicePreview';
 import { PayPanel } from '../../components/payments/PayPanel';
@@ -266,6 +267,7 @@ export const MyOrdersPage = () => {
                             {order.orderNumber}
                           </span>
                           <StatusBadge status={order.status} />
+                          <ApprovalStatusChip order={order} />
                           {isHighlighted && (
                             <span className="badge badge-amber">New draft</span>
                           )}

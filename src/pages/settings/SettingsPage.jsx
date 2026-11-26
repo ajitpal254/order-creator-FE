@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { twoFactorApi } from '../../api/twoFactor';
 import { queryClient } from '../../lib/queryClient.js';
 import { AddressesSection } from './AddressesSection';
+import { CompaniesSection } from './CompaniesSection';
 
 // Staff roles that may manage two-factor authentication (v0.4).
 // Buyers ('buyer' / 'user') never see the 2FA section.
@@ -439,6 +440,12 @@ export const SettingsPage = () => {
           an outer provider (the app root provides the same client). */}
       <QueryClientProvider client={queryClient}>
         <AddressesSection />
+      </QueryClientProvider>
+
+      {/* Companies + approvals (v0.9 F3), same shared-client provider
+          pattern as the addresses section. */}
+      <QueryClientProvider client={queryClient}>
+        <CompaniesSection />
       </QueryClientProvider>
 
       <div className="glass-card">
