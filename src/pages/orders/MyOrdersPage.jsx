@@ -8,6 +8,7 @@ import { StatusBadge } from '../../components/StatusBadge';
 import { QuotePanel } from '../../components/order/QuotePanel';
 import { InvoicePreview } from '../../components/invoice/InvoicePreview';
 import { PayPanel } from '../../components/payments/PayPanel';
+import { DocumentsPanel } from '../../components/documents/DocumentsPanel';
 import { ShareTrackingButton } from '../../components/tracking/ShareTrackingButton';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import { FxRateLine } from '../../components/order/FxRateLine';
@@ -462,6 +463,9 @@ export const MyOrdersPage = () => {
                         <ShareTrackingButton order={order} />
                       </div>
                       <PayPanel order={order} />
+
+                      {/* Order documents vault (v0.8 F1 — FEAT-08) */}
+                      <DocumentsPanel order={order} />
 
                       {/* Shipping Marks box */}
                       {order.shippingMarks && (
