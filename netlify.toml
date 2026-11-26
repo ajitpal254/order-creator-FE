@@ -3,6 +3,10 @@
   publish = "dist"
   command = "npm run build"
 
+# Serverless functions (assistant-ai: FEAT-16 Stage 2 AI Gateway proxy)
+[functions]
+  directory = "netlify/functions"
+
 # Cache headers for static assets
 [[headers]]
   for = "/assets/*"
