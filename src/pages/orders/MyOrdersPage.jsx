@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { orderApi } from '../../api/client';
+import { useMyOrders } from '../../hooks/useOrders';
 import { StatusBadge } from '../../components/StatusBadge';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import { 
@@ -17,10 +18,18 @@ import {
 } from 'lucide-react';
 
 export const MyOrdersPage = () => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
+
+  // Read fetching via TanStack Query (FE-07); the api client is unchanged
+  // and invoice totals still come straight from this API response.
+  const {
+    data: orders = [],
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useMyOrders();
 
   const handleDownloadPdf = async (e, order) => {
     e.stopPropagation();
@@ -33,23 +42,6 @@ export const MyOrdersPage = () => {
       setDownloadingId(null);
     }
   };
-
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await orderApi.getMyOrders();
-        if (res.success) {
-          setOrders(res.data);
-        }
-      } catch (err) {
-        console.error('Failed to load user orders:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, []);
 
   const toggleExpand = (orderId) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
@@ -88,6 +80,17 @@ export const MyOrdersPage = () => {
 
         {loading ? (
           <ListSkeleton rows={3} />
+        ) : isError ? (
+          <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+            <Package size={54} color="var(--text-muted)" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+            <h3 style={{ color: '#FFFFFF', marginBottom: '0.5rem' }}>Failed to load orders</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              {error?.message || 'Something went wrong while loading your orders.'}
+            </p>
+            <button type="button" onClick={() => refetch()} className="btn btn-primary">
+              Try Again
+            </button>
+          </div>
         ) : orders.length === 0 ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
             <Package size={54} color="var(--text-muted)" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />

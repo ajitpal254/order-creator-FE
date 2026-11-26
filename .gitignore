@@ -23,3 +23,7 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Playwright (QOL-04)
+test-results/
+playwright-report/

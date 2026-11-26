@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { productApi, attributeApi } from '../../api/client';
+import { useProducts, useCategories } from '../../hooks/useProducts';
 import { useOrder } from '../../context/OrderContext';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import { 
@@ -17,41 +17,25 @@ import {
 } from 'lucide-react';
 
 export const CatalogPage = () => {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
   const [selectedProductForModal, setSelectedProductForModal] = useState(null);
 
   const { addItem } = useOrder();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [prodRes, attrRes] = await Promise.all([
-          productApi.getProducts({
-            category: selectedCategory !== 'All' ? selectedCategory : '',
-            search: searchTerm,
-          }),
-          attributeApi.getAll(),
-        ]);
-
-        if (prodRes.success) setProducts(prodRes.data);
-        if (attrRes.success && attrRes.data.categories) {
-          setCategories(attrRes.data.categories);
-        }
-      } catch (err) {
-        console.error('Failed to load catalog:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [selectedCategory, searchTerm]);
+  // Read fetching via TanStack Query (FE-07); the api client is unchanged.
+  const {
+    data: products = [],
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useProducts({
+    category: selectedCategory !== 'All' ? selectedCategory : '',
+    search: searchTerm,
+  });
+  const { data: categories = [] } = useCategories();
 
   const handleConfigureInOrderCreator = (product) => {
     navigate('/order-creator', { state: { preSelectedProduct: product } });
@@ -127,6 +111,17 @@ export const CatalogPage = () => {
         {/* Product Grid */}
         {loading ? (
           <ListSkeleton rows={6} variant="grid" />
+        ) : isError ? (
+          <div className="glass-card" style={{ textAlign: 'center', padding: '3.5rem 1rem' }}>
+            <Box size={48} color="var(--text-muted)" style={{ margin: '0 auto 1rem' }} />
+            <h3 style={{ color: '#FFFFFF', marginBottom: '0.5rem' }}>Failed to load catalog</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              {error?.message || 'Something went wrong while loading products.'}
+            </p>
+            <button type="button" onClick={() => refetch()} className="btn btn-primary">
+              Try Again
+            </button>
+          </div>
         ) : products.length === 0 ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '3.5rem 1rem' }}>
             <Box size={48} color="var(--text-muted)" style={{ margin: '0 auto 1rem' }} />

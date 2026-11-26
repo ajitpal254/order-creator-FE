@@ -1,0 +1,55 @@
+import React from 'react';
+import { Modal } from '../../components/Modal';
+
+export const OrderStatusModal = ({ selectedOrderForStatus, setSelectedOrderForStatus, newStatus, setNewStatus, statusNote, setStatusNote, handleUpdateStatus }) => (
+  <Modal
+    isOpen={Boolean(selectedOrderForStatus)}
+    onClose={() => setSelectedOrderForStatus(null)}
+    title={`Update Status for Order #${selectedOrderForStatus.orderNumber}`}
+  >
+    <div className="form-group">
+      <label className="form-label">Select Pipeline Status</label>
+      <select
+        className="form-control form-select"
+        value={newStatus}
+        onChange={(e) => setNewStatus(e.target.value)}
+      >
+        <option value="Submitted">Submitted (Under Review)</option>
+        <option value="Under Review">Under Review (Pricing Check)</option>
+        <option value="Confirmed">Confirmed (Proforma Issued)</option>
+        <option value="In Production">In Production (Forging/Assembly)</option>
+        <option value="Dispatched">Dispatched (Bill of Lading Issued)</option>
+        <option value="Completed">Completed (Delivered)</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    <div className="form-group">
+      <label className="form-label">Internal & Customer Note</label>
+      <textarea
+        rows={3}
+        className="form-control"
+        placeholder="e.g. Raw material batch forged; electro-plating scheduled for Friday."
+        value={statusNote}
+        onChange={(e) => setStatusNote(e.target.value)}
+      />
+    </div>
+
+    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
+      <button
+        type="button"
+        onClick={() => setSelectedOrderForStatus(null)}
+        className="btn btn-secondary btn-sm"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        onClick={handleUpdateStatus}
+        className="btn btn-primary btn-sm"
+      >
+        Save Status Update
+      </button>
+    </div>
+  </Modal>
+);
