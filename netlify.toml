@@ -9,6 +9,13 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Service worker (FE-15): sw.js must never be long-cached, or browsers
+# would keep serving a stale worker after a deploy.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Security headers for all routes (SEC-14, v0.2)
 # CSP is Report-Only on purpose: violations surface in the browser console
 # without breaking the live app while the policy is validated.

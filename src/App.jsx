@@ -7,6 +7,7 @@ import { OrderProvider } from './context/OrderContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { AssistantWidget } from './components/assistant/AssistantWidget';
+import { InstallBanner } from './components/InstallBanner';
 import { PageLoader } from './components/PageLoader';
 import { NotFound } from './pages/NotFound';
 
@@ -128,6 +129,9 @@ function App() {
               </Suspense>
             </main>
             <Footer />
+            {/* PWA install prompt (FE-15): renders only when the browser
+                fires beforeinstallprompt and it was not dismissed. */}
+            <InstallBanner />
             {/* Assistant chat (v0.7 FEAT-16): renders only for
                 authenticated users; the drawer itself is lazy-loaded. */}
             <AssistantWidget />

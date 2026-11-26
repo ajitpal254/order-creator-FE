@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
@@ -26,6 +27,7 @@ const COUNTRIES = [
 ];
 
 export const SignupPage = () => {
+  const { t } = useTranslation();
   const { signup } = useAuth();
   const navigate = useNavigate();
 
@@ -124,10 +126,10 @@ export const SignupPage = () => {
             <Wrench size={26} color="#F59E0B" />
           </div>
           <h2 style={{ fontSize: '1.6rem', color: '#FFFFFF', marginBottom: '0.25rem' }}>
-            Register Importer / Business Account
+            {t('auth.signupTitle')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            Connect directly with H.A. Overseas factory export desk & access custom order configurators
+            {t('auth.signupSubtitle')}
           </p>
         </div>
 
@@ -167,7 +169,7 @@ export const SignupPage = () => {
             }}
           >
             <CheckCircle2 size={20} />
-            <span>Account created successfully! Redirecting to Order Creator...</span>
+            <span>{t('auth.signupSuccess')}</span>
           </div>
         )}
 
@@ -185,31 +187,31 @@ export const SignupPage = () => {
               paddingBottom: '0.4rem',
             }}
           >
-            1. Business & Contact Information
+            {t('auth.sectionBusiness')}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
             <div className="form-group">
-              <label className="form-label">Customer / Contact Person Name *</label>
+              <label className="form-label">{t('auth.customerName')}</label>
               <input
                 type="text"
                 name="customerName"
                 required
                 className="form-control"
-                placeholder="e.g. Johnathan Smith"
+                placeholder={t('auth.customerNamePlaceholder')}
                 value={formData.customerName}
                 onChange={handleChange}
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Business / Firm / Company Name *</label>
+              <label className="form-label">{t('auth.businessName')}</label>
               <input
                 type="text"
                 name="businessName"
                 required
                 className="form-control"
-                placeholder="e.g. Apex Industrial Supplies LLC"
+                placeholder={t('auth.businessNamePlaceholder')}
                 value={formData.businessName}
                 onChange={handleChange}
               />
@@ -218,7 +220,7 @@ export const SignupPage = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
             <div className="form-group">
-              <label className="form-label">Country / Export Destination *</label>
+              <label className="form-label">{t('auth.country')}</label>
               <select
                 name="country"
                 required
@@ -235,13 +237,13 @@ export const SignupPage = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Phone / WhatsApp Number *</label>
+              <label className="form-label">{t('auth.phone')}</label>
               <input
                 type="tel"
                 name="phoneNumber"
                 required
                 className="form-control"
-                placeholder="e.g. +1 (555) 349-2910"
+                placeholder={t('auth.phonePlaceholder')}
                 value={formData.phoneNumber}
                 onChange={handleChange}
               />
@@ -249,13 +251,13 @@ export const SignupPage = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Complete Business / Factory / Delivery Address *</label>
+            <label className="form-label">{t('auth.address')}</label>
             <textarea
               name="address"
               required
               rows={2}
               className="form-control"
-              placeholder="e.g. Suite 400, Industrial Parkway, Houston, TX 77001, USA"
+              placeholder={t('auth.addressPlaceholder')}
               value={formData.address}
               onChange={handleChange}
             />
@@ -275,26 +277,26 @@ export const SignupPage = () => {
               paddingBottom: '0.4rem',
             }}
           >
-            2. Portal Login Credentials
+            {t('auth.sectionCredentials')}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
             <div className="form-group">
-              <label className="form-label">Desired Username *</label>
+              <label className="form-label">{t('auth.desiredUsername')}</label>
               <input
                 type="text"
                 name="username"
                 required
                 minLength={3}
                 className="form-control"
-                placeholder="e.g. apex_tools"
+                placeholder={t('auth.desiredUsernamePlaceholder')}
                 value={formData.username}
                 onChange={handleChange}
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Official Email Address *</label>
+              <label className="form-label">{t('auth.email')}</label>
               <input
                 type="email"
                 name="email"
@@ -308,7 +310,7 @@ export const SignupPage = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Create Password *</label>
+            <label className="form-label">{t('auth.createPassword')}</label>
             <div className="password-input-wrapper">
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -316,7 +318,7 @@ export const SignupPage = () => {
                 required
                 minLength={6}
                 className="form-control"
-                placeholder="Minimum 6 characters"
+                placeholder={t('auth.passwordPlaceholder')}
                 value={formData.password}
                 onChange={handleChange}
               />
@@ -324,7 +326,7 @@ export const SignupPage = () => {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="password-toggle-btn"
-                title={showPassword ? 'Hide password' : 'Show password'}
+                title={showPassword ? t('common.hidePassword') : t('common.showPassword')}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -353,7 +355,7 @@ export const SignupPage = () => {
                   />
                 </div>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginTop: '3px' }}>
-                  Strength: {strength <= 25 ? 'Weak' : strength <= 50 ? 'Medium' : strength <= 75 ? 'Good' : 'Strong & Secure'}
+                  {t('auth.passwordStrength', { level: strength <= 25 ? t('auth.strengthWeak') : strength <= 50 ? t('auth.strengthMedium') : strength <= 75 ? t('auth.strengthGood') : t('auth.strengthStrong') })}
                 </span>
               </div>
             )}
@@ -365,14 +367,14 @@ export const SignupPage = () => {
             className="btn btn-primary btn-lg"
             style={{ width: '100%', marginTop: '1rem' }}
           >
-            {loading ? 'Creating Business Account...' : 'Complete Registration & Open Order Creator'}
+            {loading ? t('auth.creatingAccount') : t('auth.completeRegistration')}
           </button>
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          Already have an account?{' '}
+          {t('auth.alreadyHaveAccount')}{' '}
           <Link to="/login" style={{ color: 'var(--accent-amber)', fontWeight: 600 }}>
-            Sign In Here
+            {t('auth.signInHere')}
           </Link>
         </div>
       </div>

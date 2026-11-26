@@ -21,6 +21,7 @@ import {
   useBuyerOrders,
   useReorderOrder,
 } from '../../hooks/useBuyerDashboard';
+import { useTranslation } from 'react-i18next';
 import './buyer-dashboard.css';
 
 // Buyer dashboard (FE-13): the post-login landing view for buyer-role
@@ -41,6 +42,7 @@ import './buyer-dashboard.css';
 //  - Document downloads ride on the cards via orderApi.downloadPdf,
 //    the unchanged authenticated blob-download flow.
 export const BuyerDashboard = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [downloadingId, setDownloadingId] = useState(null);
@@ -63,12 +65,12 @@ export const BuyerDashboard = () => {
         <div className="container">
           <div className="glass-card buyer-dashboard__empty">
             <LayoutDashboard size={54} color="var(--text-muted)" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-            <h3>This dashboard is for buyer accounts</h3>
+            <h3>{t('dashboard.staffTitle')}</h3>
             <p style={{ marginBottom: '1.5rem' }}>
-              Your account has a staff role, so your orders workspace is the admin dashboard.
+              {t('dashboard.staffText')}
             </p>
             <Link to="/admin" className="btn btn-primary">
-              Go to Admin Dashboard
+              {t('dashboard.goToAdmin')}
             </Link>
           </div>
         </div>
@@ -112,13 +114,13 @@ export const BuyerDashboard = () => {
         <div className="buyer-dashboard__header">
           <div className="badge badge-amber" style={{ marginBottom: '0.5rem' }}>
             <LayoutDashboard size={14} />
-            <span>BUYER DASHBOARD</span>
+            <span>{t('dashboard.badge')}</span>
           </div>
           <h1 className="buyer-dashboard__title">
-            Welcome back{user?.customerName ? `, ${user.customerName}` : ''}
+            {user?.customerName ? t('dashboard.welcomeBack', { name: user.customerName }) : t('dashboard.welcomeBackPlain')}
           </h1>
           <p className="buyer-dashboard__subtitle">
-            Your active orders, anything waiting on you, and one-click reorders.
+            {t('dashboard.subtitle')}
           </p>
         </div>
 
@@ -134,12 +136,12 @@ export const BuyerDashboard = () => {
         ) : isError ? (
           <div className="glass-card buyer-dashboard__empty">
             <Package size={54} color="var(--text-muted)" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-            <h3>Failed to load your dashboard</h3>
+            <h3>{t('dashboard.loadFailed')}</h3>
             <p style={{ marginBottom: '1.5rem' }}>
-              {error?.message || 'Something went wrong while loading your orders.'}
+              {error?.message || t('dashboard.loadFailedDefault')}
             </p>
             <button type="button" onClick={() => refetch()} className="btn btn-primary">
-              Try Again
+              {t('common.tryAgain')}
             </button>
           </div>
         ) : (
@@ -148,12 +150,12 @@ export const BuyerDashboard = () => {
             <section className="buyer-dashboard__section">
               <h2 className="buyer-dashboard__section-title">
                 <BellRing size={20} />
-                <span>Awaiting your action</span>
+                <span>{t('dashboard.awaitingTitle')}</span>
               </h2>
               {awaitingCount === 0 ? (
                 <div className="glass-card buyer-dashboard__empty">
-                  <h3>Nothing needs your attention</h3>
-                  <p>No draft orders and no unpaid invoices right now.</p>
+                  <h3>{t('dashboard.nothingTitle')}</h3>
+                  <p>{t('dashboard.nothingText')}</p>
                 </div>
               ) : (
                 <div className="buyer-dashboard__list">
@@ -178,17 +180,17 @@ export const BuyerDashboard = () => {
             <section className="buyer-dashboard__section">
               <h2 className="buyer-dashboard__section-title">
                 <Package size={20} />
-                <span>Active orders</span>
+                <span>{t('dashboard.activeTitle')}</span>
               </h2>
               {activeOrders.length === 0 ? (
                 <div className="glass-card buyer-dashboard__empty">
-                  <h3>No active orders</h3>
+                  <h3>{t('dashboard.noActiveTitle')}</h3>
                   <p style={{ marginBottom: '1.5rem' }}>
-                    Orders in production or on their way to you will show up here.
+                    {t('dashboard.noActiveText')}
                   </p>
                   <Link to="/order-creator" className="btn btn-primary">
                     <ShoppingCart size={16} />
-                    <span>Create New Order</span>
+                    <span>{t('dashboard.createNewOrder')}</span>
                   </Link>
                 </div>
               ) : (
@@ -209,12 +211,12 @@ export const BuyerDashboard = () => {
             <section className="buyer-dashboard__section">
               <h2 className="buyer-dashboard__section-title">
                 <Repeat size={20} />
-                <span>Order again</span>
+                <span>{t('dashboard.orderAgainTitle')}</span>
               </h2>
               {reorderableOrders.length === 0 ? (
                 <div className="glass-card buyer-dashboard__empty">
-                  <h3>No past orders to reorder</h3>
-                  <p>Once you have placed an order, you can clone it here as a new draft.</p>
+                  <h3>{t('dashboard.noPastTitle')}</h3>
+                  <p>{t('dashboard.noPastText')}</p>
                 </div>
               ) : (
                 <div className="buyer-dashboard__list">

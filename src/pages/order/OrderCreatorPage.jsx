@@ -10,8 +10,10 @@ import { OrderSheet } from '../../components/order/OrderSheet';
 import { OrderSuccessModal } from '../../components/order/OrderSuccessModal';
 import { BulkImportModal } from '../../components/order/BulkImportModal';
 import { TemplateControls } from '../../components/order/TemplateControls';
+import { useTranslation } from 'react-i18next';
 
 export const OrderCreatorPage = () => {
+  const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const {
     cartItems,
@@ -145,7 +147,7 @@ const handleFinalSubmit = async () => {
   if (loading && products.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '5rem 0', color: 'var(--accent-amber)' }}>
-        Loading Order Creator Engine...
+        {t('orderCreator.loading')}
       </div>
     );
   }
@@ -157,13 +159,13 @@ const handleFinalSubmit = async () => {
 <div style={{ marginBottom: '2rem' }}>
   <div className="badge badge-amber" style={{ marginBottom: '0.5rem' }}>
     <Wrench size={14} />
-    <span>CUSTOM BATCH ORDER CONFIGURATOR</span>
+    <span>{t('orderCreator.badge')}</span>
   </div>
   <h1 style={{ fontSize: '2.4rem', color: '#FFFFFF', marginBottom: '0.5rem' }}>
-    Interactive Order Creator
+    {t('orderCreator.title')}
   </h1>
   <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-    Select products, customize finish coatings, brand logos, packing cartons, and generate instant proforma invoices.
+    {t('orderCreator.subtitle')}
   </p>
 </div>
 
@@ -222,7 +224,7 @@ const handleFinalSubmit = async () => {
             onClick={() => setBulkImportOpen(true)}
           >
             <Upload size={14} />
-            <span>Bulk import</span>
+            <span>{t('orderCreator.bulkImport')}</span>
           </button>
           <TemplateControls
             canSave={cartItems.length > 0}

@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { isFirebaseConfigured } from '../../firebase';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
+import { useTranslation } from 'react-i18next';
 import { 
   Wrench, 
   Lock, 
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 
 export const LoginPage = () => {
+  const { t } = useTranslation();
   const { login, googleLogin, verifyTwoFactor } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -174,10 +176,10 @@ export const LoginPage = () => {
               <ShieldAlert size={26} color="#F59E0B" />
             </div>
             <h2 style={{ fontSize: '1.6rem', color: '#FFFFFF', marginBottom: '0.25rem' }}>
-              Two-Factor Verification
+              {t('auth.twoFactorTitle')}
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-              Enter the code from your authenticator app to finish signing in.
+              {t('auth.twoFactorSubtitle')}
             </p>
           </div>
 
@@ -204,7 +206,7 @@ export const LoginPage = () => {
           {challengeExpired ? (
             <div style={{ textAlign: 'center' }}>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1rem' }}>
-                This sign-in challenge has expired or is no longer valid. Please start again.
+                {t('auth.twoFactorExpired')}
               </p>
               <button
                 type="button"
@@ -212,14 +214,14 @@ export const LoginPage = () => {
                 className="btn btn-primary"
                 style={{ width: '100%' }}
               >
-                Restart login
+                {t('auth.restartLogin')}
               </button>
             </div>
           ) : (
             <form onSubmit={handleVerifyTwoFactor}>
               <div className="form-group">
                 <label className="form-label" htmlFor="two-factor-code">
-                  Authentication code
+                  {t('auth.authenticationCode')}
                 </label>
                 <input
                   id="two-factor-code"
@@ -232,8 +234,7 @@ export const LoginPage = () => {
                   autoFocus
                 />
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.4rem' }}>
-                  Enter the 6-digit code from your authenticator app, or one of
-                  your backup codes.
+                  {t('auth.twoFactorHint')}
                 </p>
               </div>
 
@@ -243,7 +244,7 @@ export const LoginPage = () => {
                 className="btn btn-primary"
                 style={{ width: '100%', marginTop: '0.5rem' }}
               >
-                {verifying ? 'Verifying...' : 'Verify Code'}
+                {verifying ? t('auth.verifying') : t('auth.verifyCode')}
               </button>
             </form>
           )}
@@ -261,7 +262,7 @@ export const LoginPage = () => {
                 cursor: 'pointer',
               }}
             >
-              Back to login
+              {t('auth.backToLogin')}
             </button>
           </div>
         </div>
@@ -307,10 +308,10 @@ export const LoginPage = () => {
             <Wrench size={26} color="#F59E0B" />
           </div>
           <h2 style={{ fontSize: '1.6rem', color: '#FFFFFF', marginBottom: '0.25rem' }}>
-            Portal Sign In
+            {t('auth.loginTitle')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            H.A. Overseas Wholesale & Order Creator Desk
+            {t('auth.loginSubtitle')}
           </p>
         </div>
 
@@ -342,7 +343,7 @@ export const LoginPage = () => {
           title={
             isFirebaseConfigured
               ? undefined
-              : 'Google sign-in is not configured on this deployment'
+              : t('auth.googleNotConfiguredTitle')
           }
           className="btn btn-secondary"
           style={{
@@ -376,7 +377,7 @@ export const LoginPage = () => {
               d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
             />
           </svg>
-          <span>{googleLoading ? 'Connecting Google...' : 'Continue with Google'}</span>
+          <span>{googleLoading ? t('auth.connectingGoogle') : t('auth.continueWithGoogle')}</span>
         </button>
 
         {!isFirebaseConfigured && (
@@ -388,8 +389,7 @@ export const LoginPage = () => {
               marginBottom: '1.25rem',
             }}
           >
-            Google sign-in is not configured on this deployment — please sign
-            in with your username and password.
+            {t('auth.googleNotConfigured')}
           </p>
         )}
 
@@ -405,14 +405,14 @@ export const LoginPage = () => {
           }}
         >
           <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
-          <span>OR SIGN IN WITH USERNAME</span>
+          <span>{t('auth.orSignInWithUsername')}</span>
           <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
         </div>
 
         {/* Standard Credentials Form */}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Username or Business Email</label>
+            <label className="form-label">{t('auth.usernameOrEmail')}</label>
             <div className="password-input-wrapper">
               <input
                 type="text"
@@ -428,7 +428,7 @@ export const LoginPage = () => {
 
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-              <label className="form-label" style={{ margin: 0 }}>Password</label>
+              <label className="form-label" style={{ margin: 0 }}>{t('auth.password')}</label>
               <button
                 type="button"
                 onClick={() => setIsForgotModalOpen(true)}
@@ -440,7 +440,7 @@ export const LoginPage = () => {
                   cursor: 'pointer',
                 }}
               >
-                Forgot Password?
+                {t('auth.forgotPassword')}
               </button>
             </div>
             <div className="password-input-wrapper">
@@ -457,7 +457,7 @@ export const LoginPage = () => {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="password-toggle-btn"
-                title={showPassword ? 'Hide password' : 'Show password'}
+                title={showPassword ? t('common.hidePassword') : t('common.showPassword')}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -470,15 +470,15 @@ export const LoginPage = () => {
             className="btn btn-primary"
             style={{ width: '100%', marginTop: '0.5rem' }}
           >
-            {loading ? 'Authenticating...' : 'Sign In to Order Desk'}
+            {loading ? t('auth.authenticating') : t('auth.signInToOrderDesk')}
           </button>
         </form>
 
         {/* Sign up prompt */}
         <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          Don't have an export account?{' '}
+          {t('auth.noAccount')}{' '}
           <Link to="/signup" style={{ color: 'var(--accent-amber)', fontWeight: 600 }}>
-            Register New Business Account
+            {t('auth.registerNewAccount')}
           </Link>
         </div>
       </div>

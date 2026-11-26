@@ -12,6 +12,8 @@ import { DocumentsPanel } from '../../components/documents/DocumentsPanel';
 import { ShareTrackingButton } from '../../components/tracking/ShareTrackingButton';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import { FxRateLine } from '../../components/order/FxRateLine';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../i18n/format.js';
 import {
   Package,
   FileDown,
@@ -39,6 +41,7 @@ const bannerBaseStyle = {
 };
 
 export const MyOrdersPage = () => {
+  const { t } = useTranslation();
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   // FE-10: on narrow screens the expanded detail collapses into
   // Details | Invoice tabs; on desktop both panes show side by side.
@@ -151,17 +154,17 @@ export const MyOrdersPage = () => {
           <div>
             <div className="badge badge-amber" style={{ marginBottom: '0.5rem' }}>
               <Package size={14} />
-              <span>BUYER EXPORT PORTAL</span>
+              <span>{t('myOrders.badge')}</span>
             </div>
-            <h1 style={{ fontSize: '2.2rem', color: '#FFFFFF' }}>My Orders & Production Tracking</h1>
+            <h1 style={{ fontSize: '2.2rem', color: '#FFFFFF' }}>{t('myOrders.title')}</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-              Review submitted order specifications, timeline progress, and download official PDF proforma invoices.
+              {t('myOrders.subtitle')}
             </p>
           </div>
 
           <Link to="/order-creator" className="btn btn-primary">
             <ShoppingCart size={16} />
-            <span>Create New Order</span>
+            <span>{t('myOrders.createNewOrder')}</span>
           </Link>
         </div>
 
@@ -198,23 +201,23 @@ export const MyOrdersPage = () => {
         ) : isError ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
             <Package size={54} color="var(--text-muted)" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-            <h3 style={{ color: '#FFFFFF', marginBottom: '0.5rem' }}>Failed to load orders</h3>
+            <h3 style={{ color: '#FFFFFF', marginBottom: '0.5rem' }}>{t('myOrders.loadFailed')}</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-              {error?.message || 'Something went wrong while loading your orders.'}
+              {error?.message || t('myOrders.loadFailedDefault')}
             </p>
             <button type="button" onClick={() => refetch()} className="btn btn-primary">
-              Try Again
+              {t('common.tryAgain')}
             </button>
           </div>
         ) : orders.length === 0 ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
             <Package size={54} color="var(--text-muted)" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-            <h3 style={{ color: '#FFFFFF', marginBottom: '0.5rem' }}>No orders found</h3>
+            <h3 style={{ color: '#FFFFFF', marginBottom: '0.5rem' }}>{t('myOrders.noOrders')}</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-              You haven't placed any custom manufacturing orders yet.
+              {t('myOrders.noOrdersHint')}
             </p>
             <Link to="/order-creator" className="btn btn-primary">
-              Launch Order Creator
+              {t('myOrders.launchOrderCreator')}
             </Link>
           </div>
         ) : (
@@ -267,15 +270,15 @@ export const MyOrdersPage = () => {
                           </span>
                           <StatusBadge status={order.status} />
                           {isHighlighted && (
-                            <span className="badge badge-amber">New draft</span>
+                            <span className="badge badge-amber">{t('myOrders.newDraft')}</span>
                           )}
                         </div>
                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                          Placed on {new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                          {t('myOrders.placedOn', { date: formatDate(order.createdAt) })}
                         </span>
                         {order.estimatedShipDate && (
                           <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                            Estimated ship date: {new Date(order.estimatedShipDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                            {t('myOrders.estimatedShipDate', { date: formatDate(order.estimatedShipDate) })}
                           </span>
                         )}
                       </div>
