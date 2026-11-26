@@ -51,6 +51,14 @@ export const OrderSuccessModal = ({ orderSuccessModal, setOrderSuccessModal }) =
           <span style={{ color: 'var(--text-muted)' }}>Estimated Gross Weight:</span>
           <span style={{ color: '#FFFFFF', fontWeight: 600 }}>{orderSuccessModal.estimatedWeightKg} kg</span>
         </div>
+        {orderSuccessModal.estimatedShipDate && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <span style={{ color: 'var(--text-muted)' }}>Estimated ship date:</span>
+            <span style={{ color: '#FFFFFF', fontWeight: 600 }}>
+              {new Date(orderSuccessModal.estimatedShipDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            </span>
+          </div>
+        )}
         <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.5rem' }}>
           <span style={{ color: 'var(--text-muted)' }}>Proforma Total Value (FOB):</span>
           <span style={{ color: 'var(--accent-amber)', fontWeight: 800, fontSize: '1rem' }}>

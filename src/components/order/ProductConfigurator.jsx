@@ -81,7 +81,7 @@ export const ProductConfigurator = ({ currentProduct, products, attributes, sele
               {currentProduct.name}
             </div>
             <div style={{ fontSize: '0.8rem', color: 'var(--accent-amber)' }}>
-              Category: {currentProduct.category} | SKU: {currentProduct.sku} | MOQ: {currentProduct.moq} pcs | Weight: {currentProduct.weightKg} kg/pc
+              Category: {currentProduct.category} | SKU: {currentProduct.sku} | MOQ: {currentProduct.moq} pcs | Weight: {currentProduct.weightKg} kg/pc{currentProduct.leadTimeDays != null ? ` | Lead time: ${currentProduct.leadTimeDays} days` : ''}
             </div>
           </div>
         </div>
@@ -200,6 +200,20 @@ export const ProductConfigurator = ({ currentProduct, products, attributes, sele
               MOQ: {currentProduct.moq || 50} pcs | ~{Math.ceil(quantity / (currentProduct.pcsPerCarton || 20))} ctns
             </span>
           )}
+          {currentProduct?.leadTimeDays != null && (
+            <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+              Lead time: {currentProduct.leadTimeDays} days
+            </span>
+          )}
+          {/* Below-MOQ warning (FEAT-09): display only — never blocks
+              adding the line, never changes the quantity. */}
+          {currentProduct?.moq != null &&
+            !Number.isNaN(parseInt(quantity, 10)) &&
+            parseInt(quantity, 10) < currentProduct.moq && (
+              <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--accent-amber)', fontWeight: 600 }}>
+                Below MOQ (min {currentProduct.moq} pcs)
+              </span>
+            )}
         </div>
 
         <div className="form-group" style={{ margin: 0 }}>

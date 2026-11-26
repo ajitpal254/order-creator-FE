@@ -272,6 +272,11 @@ export const MyOrdersPage = () => {
                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                           Placed on {new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                         </span>
+                        {order.estimatedShipDate && (
+                          <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                            Estimated ship date: {new Date(order.estimatedShipDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </span>
+                        )}
                       </div>
                     </div>
 
