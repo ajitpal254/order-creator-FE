@@ -26,6 +26,12 @@ const MyOrdersPage = lazy(() =>
 const AdminDashboard = lazy(() =>
   import('./pages/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
 );
+const BuyerDashboard = lazy(() =>
+  import('./pages/buyer/BuyerDashboard').then((m) => ({ default: m.BuyerDashboard }))
+);
+const SettingsPage = lazy(() =>
+  import('./pages/settings/SettingsPage').then((m) => ({ default: m.SettingsPage }))
+);
 
 // Route Guard for Authenticated Users
 const ProtectedRoute = ({ children }) => {
@@ -64,10 +70,26 @@ function App() {
 
                   {/* Protected Buyer Routes */}
                   <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <BuyerDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
                     path="/my-orders"
                     element={
                       <ProtectedRoute>
                         <MyOrdersPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsPage />
                       </ProtectedRoute>
                     }
                   />

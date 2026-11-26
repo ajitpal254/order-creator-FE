@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { NotificationBell } from './notifications/NotificationBell';
 import { useOrder } from '../context/OrderContext';
 import { 
   Wrench, 
@@ -10,7 +11,9 @@ import {
   ShieldCheck, 
   Package, 
   Layers,
-  FileText
+  FileText,
+  LayoutDashboard,
+  Settings
 } from 'lucide-react';
 
 export const Navbar = () => {
@@ -108,6 +111,20 @@ export const Navbar = () => {
             )}
           </Link>
 
+          {isAuthenticated && !isAdmin && (
+            <Link
+              to="/dashboard"
+              className="btn btn-secondary btn-sm"
+              style={{
+                borderColor: isActive('/dashboard') ? 'var(--accent-amber)' : 'transparent',
+                color: isActive('/dashboard') ? '#FFFFFF' : 'var(--text-secondary)',
+              }}
+            >
+              <LayoutDashboard size={16} />
+              <span>Dashboard</span>
+            </Link>
+          )}
+
           {isAuthenticated && (
             <Link
               to="/my-orders"
@@ -142,6 +159,7 @@ export const Navbar = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {isAuthenticated ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <NotificationBell />
               <div
                 style={{
                   display: 'flex',
@@ -156,6 +174,14 @@ export const Navbar = () => {
                   {user.businessName || user.country}
                 </span>
               </div>
+              <Link
+                to="/settings"
+                className="btn btn-secondary btn-sm"
+                title="Settings"
+                style={{ padding: '0.4rem 0.6rem' }}
+              >
+                <Settings size={16} />
+              </Link>
               <button
                 onClick={() => {
                   logout();

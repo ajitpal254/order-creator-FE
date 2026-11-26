@@ -25,6 +25,7 @@ const renderLogin = () =>
         <OrderProvider>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/dashboard" element={<div>Buyer Dashboard Landing</div>} />
             <Route path="/order-creator" element={<div>Order Creator Landing</div>} />
             <Route path="/admin" element={<div>Admin Landing</div>} />
           </Routes>
@@ -49,8 +50,8 @@ describe('Login flow', () => {
 
     await fillAndSubmit(user);
 
-    // Buyer accounts land on the order creator after login.
-    expect(await screen.findByText('Order Creator Landing')).toBeInTheDocument();
+    // Buyer accounts land on their dashboard after login (v0.4, FE-13).
+    expect(await screen.findByText('Buyer Dashboard Landing')).toBeInTheDocument();
     // The session is persisted exactly as the app does today.
     expect(localStorage.getItem('hao_token')).toBe(loginSuccess.token);
   });
