@@ -82,3 +82,15 @@ handlers.push(
     HttpResponse.json({ success: true, count: 0, total: 0, page: 1, limit: 50, data: [] })
   ),
 );
+
+// ---- v1.0 F1 Developer (appended) ----
+// Defaults are empty lists so other suites rendering the Settings page
+// stay green; the developer tests override with fixtures via server.use.
+handlers.push(
+  http.get(`${API_BASE}/developer/keys`, () =>
+    HttpResponse.json({ success: true, data: [] })
+  ),
+  http.get(`${API_BASE}/developer/webhooks`, () =>
+    HttpResponse.json({ success: true, data: [] })
+  ),
+);
