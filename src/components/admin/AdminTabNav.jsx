@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Layers, Settings2, Users } from 'lucide-react';
+import { Package, Layers, Settings2, Users, Receipt } from 'lucide-react';
 
 export const AdminTabNav = ({ activeTab, setActiveTab, orders, products, customers }) => (
 <div
@@ -34,6 +34,14 @@ export const AdminTabNav = ({ activeTab, setActiveTab, orders, products, custome
   >
     <Settings2 size={16} />
     <span>Dynamic Masters (Finishes & Colors)</span>
+  </button>
+
+  <button
+    onClick={() => setActiveTab('invoices')}
+    className={`btn btn-sm ${activeTab === 'invoices' ? 'btn-primary' : 'btn-secondary'}`}
+  >
+    <Receipt size={16} />
+    <span>Invoices ({orders.length})</span>
   </button>
 
   <button

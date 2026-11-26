@@ -9,6 +9,7 @@ import { AdminHeader } from '../../components/admin/AdminHeader';
 import { AdminStats } from '../../components/admin/AdminStats';
 import { AdminTabNav } from '../../components/admin/AdminTabNav';
 import { OrdersTab } from '../../components/admin/OrdersTab';
+import { InvoicesTab } from '../../components/admin/InvoicesTab';
 import { ProductsTab } from '../../components/admin/ProductsTab';
 import { AttributesTab } from '../../components/admin/AttributesTab';
 import { CustomersTab } from '../../components/admin/CustomersTab';
@@ -16,7 +17,7 @@ import { OrderStatusModal } from '../../components/admin/OrderStatusModal';
 import { ProductModal } from '../../components/admin/ProductModal';
 
 export const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'products' | 'attributes' | 'customers'
+  const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'invoices' | 'products' | 'attributes' | 'customers'
 
   const {
     stats, orders, setOrders, products, setProducts, attributes, setAttributes,
@@ -66,6 +67,21 @@ export const AdminDashboard = () => {
             orders={orders}
             setSelectedOrderForStatus={setSelectedOrderForStatus}
             setNewStatus={setNewStatus}
+            handleDownloadPdf={handleDownloadPdf}
+            downloadingPdfId={downloadingPdfId}
+          />
+        )}
+
+        {/* TAB: INVOICES (FE-11) — rows reuse the orders loaded above;
+            View opens the same order detail flow as the Orders tab
+            (the status modal), Download PDF is the shared handler. */}
+        {!loading && activeTab === 'invoices' && (
+          <InvoicesTab
+            orders={orders}
+            onViewOrder={(ord) => {
+              setSelectedOrderForStatus(ord);
+              setNewStatus(ord.status);
+            }}
             handleDownloadPdf={handleDownloadPdf}
             downloadingPdfId={downloadingPdfId}
           />

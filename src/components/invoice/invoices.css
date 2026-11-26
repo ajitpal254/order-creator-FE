@@ -1,0 +1,322 @@
+/* Invoice screens (v0.6 F1 — FE-10 + FE-11).
+   Dark glassmorphism to match the app language; all colours, radii and
+   shadows come from src/styles/tokens.css. The ONE intentional exception
+   is the "paper" invoice preview: a light surface that reads like the
+   printed proforma on top of the dark theme. Figures shown here are
+   display-only — every value comes from the API / order object. */
+
+/* ---------- Admin Invoices tab: metric cards ---------- */
+
+.invoice-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.invoice-metric-card {
+  padding: 1.25rem;
+}
+
+.invoice-metric-label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.invoice-metric-value {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+}
+
+.invoice-metric-value.is-outstanding {
+  color: var(--accent-amber);
+}
+
+.invoice-metric-value.is-overdue {
+  color: var(--accent-rose);
+}
+
+.invoice-metric-value.is-paid {
+  color: var(--accent-emerald);
+}
+
+.invoice-metric-note {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ---------- Admin Invoices tab: filter chips + overflow menu ---------- */
+
+.invoice-filter-chips {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.invoice-menu-cell {
+  position: relative;
+  text-align: center;
+}
+
+.invoice-menu-button {
+  padding: 0.4rem;
+}
+
+.invoice-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 180px;
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: 60;
+  padding: 0.35rem;
+  text-align: left;
+}
+
+.invoice-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.6rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  transition: background var(--transition-fast);
+}
+
+.invoice-menu-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.invoice-menu-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- My Orders: split-pane detail (FE-10) ---------- */
+
+.order-detail-tabs {
+  display: none;
+}
+
+.order-detail-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.order-detail-right {
+  position: sticky;
+  top: 1rem;
+}
+
+.order-totals-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding: 0.85rem 1.1rem;
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: 20;
+}
+
+.order-totals-bar-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.order-totals-bar-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--accent-amber);
+}
+
+/* Mobile: the two panes collapse into Details | Invoice tabs. */
+@media (max-width: 900px) {
+  .order-detail-tabs {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .order-detail-split {
+    display: block;
+  }
+
+  .order-detail-pane {
+    display: none;
+  }
+
+  .order-detail-pane.is-mobile-active {
+    display: block;
+  }
+
+  .order-detail-right {
+    position: static;
+  }
+}
+
+/* ---------- Paper invoice preview (intentional light surface) ---------- */
+
+.invoice-paper {
+  background: #FDFCF8;
+  color: #1F2937;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 1.25rem 1.35rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.invoice-paper-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 2px solid #111827;
+  padding-bottom: 0.7rem;
+  margin-bottom: 0.8rem;
+}
+
+.invoice-paper-brand {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.03em;
+  color: #111827;
+}
+
+.invoice-paper-doc {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #92400E;
+  text-align: right;
+}
+
+.invoice-paper-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.invoice-paper-meta dt {
+  color: #6B7280;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.invoice-paper-meta dd {
+  margin: 0;
+  font-weight: 600;
+  color: #111827;
+}
+
+.invoice-paper-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.9rem;
+}
+
+.invoice-paper-table th {
+  text-align: left;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6B7280;
+  border-bottom: 1px solid #D1D5DB;
+  padding: 0.35rem 0.3rem;
+}
+
+.invoice-paper-table td {
+  padding: 0.45rem 0.3rem;
+  border-bottom: 1px solid #E5E7EB;
+  vertical-align: top;
+}
+
+.invoice-paper-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.invoice-paper-item-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.invoice-paper-item-sku {
+  font-size: 0.7rem;
+  color: #92400E;
+}
+
+.invoice-paper-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 2px solid #111827;
+  padding-top: 0.6rem;
+}
+
+.invoice-paper-total-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6B7280;
+}
+
+.invoice-paper-total-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.invoice-paper-marks {
+  margin-top: 0.8rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px dashed #9CA3AF;
+  border-radius: var(--radius-sm);
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #374151;
+}
+
+.invoice-paper-note {
+  margin-top: 0.8rem;
+  font-size: 0.7rem;
+  color: #9CA3AF;
+}

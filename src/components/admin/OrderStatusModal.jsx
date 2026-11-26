@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal } from '../../components/Modal';
 import { QuotePanel } from '../order/QuotePanel';
+import { PayPanel } from '../payments/PayPanel';
 
 export const OrderStatusModal = ({ selectedOrderForStatus, setSelectedOrderForStatus, newStatus, setNewStatus, statusNote, setStatusNote, handleUpdateStatus, onOrderUpdated }) => (
   <Modal
@@ -39,6 +40,11 @@ export const OrderStatusModal = ({ selectedOrderForStatus, setSelectedOrderForSt
     {/* Quote negotiation for quote-type orders (staff counter-offer
         responses); renders nothing for regular orders. */}
     <QuotePanel order={selectedOrderForStatus} onOrderUpdated={onOrderUpdated} />
+
+    {/* Payments (v0.6 F2): staff review — confirm / reject payments in
+        'proof_submitted' status. This modal is the order-detail area
+        the OrdersTab rows open, so the panel lives here. */}
+    <PayPanel order={selectedOrderForStatus} staff />
 
     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
       <button

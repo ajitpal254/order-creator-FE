@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StatusBadge } from '../../components/StatusBadge';
+import { ShareTrackingButton } from '../tracking/ShareTrackingButton';
 import { Search, Edit3, FileDown } from 'lucide-react';
 
 export const OrdersTab = ({ orders, setSelectedOrderForStatus, setNewStatus, handleDownloadPdf, downloadingPdfId }) => {
@@ -119,6 +120,9 @@ const filteredOrders = orders.filter((o) => {
                       <Edit3 size={14} />
                       <span>Status</span>
                     </button>
+                    {/* Public tracking link (v0.6 F2) — renders only
+                        for shipped (Dispatched) orders */}
+                    <ShareTrackingButton order={ord} />
                     <button
                       type="button"
                       onClick={() => handleDownloadPdf(ord._id, ord.orderNumber)}
