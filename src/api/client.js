@@ -264,4 +264,25 @@ export const userApi = {
     apiRequest(`/users/${id}/toggle-status`, {
       method: 'PATCH',
     }),
+  // Role management (v0.9 F1, endpoint exists since v0.3)
+  updateRole: (id, role) =>
+    apiRequest(`/users/${id}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    }),
+};
+
+export const adminApi = {
+  // Audit log viewer (v0.9 F1, endpoint exists since v0.3)
+  getAuditLogs: (params = {}) => {
+    const clean = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== '' && v != null));
+    const query = new URLSearchParams(clean).toString();
+    return apiRequest(`/admin/audit-logs${query ? `?${query}` : ''}`);
+  },
+};
+
+export const invoiceApi = {
+  // GST QR payload + IRN (v0.9 F1). Figures come from the API verbatim.
+  getGstQr: (id) => apiRequest(`/invoices/${id}/gst-qr`),
+  generateIrn: (id) => apiRequest(`/invoices/${id}/irn`, { method: 'POST' }),
 };

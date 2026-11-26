@@ -13,6 +13,8 @@ import { InvoicesTab } from '../../components/admin/InvoicesTab';
 import { ProductsTab } from '../../components/admin/ProductsTab';
 import { AttributesTab } from '../../components/admin/AttributesTab';
 import { CustomersTab } from '../../components/admin/CustomersTab';
+import { KanbanBoard } from '../../components/admin/KanbanBoard';
+import { AuditLogTab } from '../../components/admin/AuditLogTab';
 import { OrderStatusModal } from '../../components/admin/OrderStatusModal';
 import { ProductModal } from '../../components/admin/ProductModal';
 
@@ -21,7 +23,7 @@ export const AdminDashboard = () => {
 
   const {
     stats, orders, setOrders, products, setProducts, attributes, setAttributes,
-    customers, loading, toastMessage, downloadingPdfId, showToast, handleDownloadPdf,
+    customers, setCustomers, loading, toastMessage, downloadingPdfId, showToast, handleDownloadPdf,
   } = useAdminData();
 
   const {
@@ -65,12 +67,20 @@ export const AdminDashboard = () => {
         {!loading && activeTab === 'orders' && (
           <OrdersTab
             orders={orders}
+            setOrders={setOrders}
             setSelectedOrderForStatus={setSelectedOrderForStatus}
             setNewStatus={setNewStatus}
             handleDownloadPdf={handleDownloadPdf}
             downloadingPdfId={downloadingPdfId}
+            showToast={showToast}
           />
         )}
+
+        {!loading && activeTab === 'board' && (
+          <KanbanBoard orders={orders} setOrders={setOrders} showToast={showToast} />
+        )}
+
+        {!loading && activeTab === 'audit' && <AuditLogTab />}
 
         {/* TAB: INVOICES (FE-11) — rows reuse the orders loaded above;
             View opens the same order detail flow as the Orders tab
@@ -106,7 +116,7 @@ export const AdminDashboard = () => {
 
         {/* TAB 4: REGISTERED CUSTOMERS DIRECTORY */}
         {!loading && activeTab === 'customers' && (
-          <CustomersTab customers={customers} />
+          <CustomersTab customers={customers} setCustomers={setCustomers} showToast={showToast} />
         )}
       </div>
 

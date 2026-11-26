@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { apiRequest } from '../../api/client';
+import { apiRequest, invoiceApi } from '../../api/client';
+import { Modal } from '../Modal';
 import { StatusBadge } from '../StatusBadge';
 import {
   MoreHorizontal,
@@ -53,9 +54,44 @@ const monthRange = () => {
   };
 };
 
+const invoiceIdFor = (ord) =>
+  ord?.invoiceId || ord?.invoice?._id || ord?.invoice?.invoiceId || ord?.invoice?.id || ord?._id;
+
 export const InvoicesTab = ({ orders, onViewOrder, handleDownloadPdf, downloadingPdfId }) => {
   const [statusFilter, setStatusFilter] = useState('All');
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [gstData, setGstData] = useState(null);
+  const [gstOrder, setGstOrder] = useState(null);
+  const [gstError, setGstError] = useState(null);
+  const [irnMessage, setIrnMessage] = useState(null);
+  const [irnError, setIrnError] = useState(null);
+  const [irnBusyId, setIrnBusyId] = useState(null);
+
+  const handleViewGstQr = async (ord) => {
+    setGstError(null); setIrnMessage(null); setIrnError(null);
+    try {
+      const res = await invoiceApi.getGstQr(invoiceIdFor(ord));
+      const data = res && typeof res === 'object' && 'data' in res && (res.data?.payload || res.data?.record) ? res.data : res;
+      setGstData(data); setGstOrder(ord);
+    } catch (err) {
+      setGstError(`Failed to load GST QR for ${ord.orderNumber}: ${err.message}`);
+    }
+  };
+
+  const handleGenerateIrn = async (ord) => {
+    setIrnMessage(null); setIrnError(null); setGstError(null); setIrnBusyId(ord._id);
+    try {
+      const res = await invoiceApi.generateIrn(invoiceIdFor(ord));
+      const irn = res?.data?.irn || res?.irn || res?.data?.record?.irn;
+      setIrnMessage(`IRN generated for ${ord.orderNumber}${irn ? `: ${irn}` : ''}`);
+    } catch (err) {
+      if (err.status === 501 || err.data?.code === 'GSP_NOT_CONFIGURED' || err.data?.data?.code === 'GSP_NOT_CONFIGURED') {
+        setIrnError('GST provider not configured');
+      } else {
+        setIrnError(`Failed to generate IRN for ${ord.orderNumber}: ${err.message}`);
+      }
+    } finally { setIrnBusyId(null); }
+  };
 
   const { from, to } = useMemo(monthRange, []);
 
@@ -226,6 +262,25 @@ export const InvoicesTab = ({ orders, onViewOrder, handleDownloadPdf, downloadin
                               {downloadingPdfId === ord._id ? 'Downloading...' : 'Download PDF'}
                             </span>
                           </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className="invoice-menu-item"
+                            onClick={() => { setOpenMenuId(null); handleViewGstQr(ord); }}
+                          >
+                            <Eye size={14} />
+                            <span>GST QR Payload</span>
+                          </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className="invoice-menu-item"
+                            disabled={irnBusyId === ord._id}
+                            onClick={() => { setOpenMenuId(null); handleGenerateIrn(ord); }}
+                          >
+                            <CircleDollarSign size={14} />
+                            <span>{irnBusyId === ord._id ? 'Generating IRN...' : 'Generate IRN'}</span>
+                          </button>
                         </div>
                       )}
                     </td>
@@ -236,6 +291,27 @@ export const InvoicesTab = ({ orders, onViewOrder, handleDownloadPdf, downloadin
           </div>
         )}
       </div>
+      {gstError && <div role="alert" style={{ color: 'var(--accent-rose, #fb7185)', marginTop: '0.75rem' }}>{gstError}</div>}
+      {irnMessage && <div role="status" style={{ color: 'var(--accent-emerald, #34d399)', marginTop: '0.75rem' }}>{irnMessage}</div>}
+      {irnError && <div role="alert" style={{ color: 'var(--accent-rose, #fb7185)', marginTop: '0.75rem' }}>{irnError}</div>}
+      {gstData && (
+        <Modal isOpen={Boolean(gstData)} onClose={() => { setGstData(null); setGstOrder(null); }} title={`GST QR — ${gstOrder?.orderNumber || ''}`}>
+          <div className="form-group">
+            <label className="form-label">QR Payload</label>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{typeof gstData.payload === 'string' ? gstData.payload : JSON.stringify(gstData.payload ?? '', null, 2)}</pre>
+          </div>
+          {gstData.record && (
+            <div className="form-group">
+              <label className="form-label">Record</label>
+              <dl>
+                {Object.entries(gstData.record).map(([k, v]) => (
+                  <div key={k} style={{ display: 'flex', gap: '0.5rem' }}><dt style={{ color: 'var(--text-muted)' }}>{k}</dt><dd style={{ margin: 0 }}>{typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')}</dd></div>
+                ))}
+              </dl>
+            </div>
+          )}
+        </Modal>
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Layers, Settings2, Users, Receipt } from 'lucide-react';
+import { Package, Layers, Settings2, Users, Receipt, LayoutGrid, ScrollText } from 'lucide-react';
 
 export const AdminTabNav = ({ activeTab, setActiveTab, orders, products, customers }) => (
 <div
@@ -42,6 +42,22 @@ export const AdminTabNav = ({ activeTab, setActiveTab, orders, products, custome
   >
     <Receipt size={16} />
     <span>Invoices ({orders.length})</span>
+  </button>
+
+  <button
+    onClick={() => setActiveTab('board')}
+    className={`btn btn-sm ${activeTab === 'board' ? 'btn-primary' : 'btn-secondary'}`}
+  >
+    <LayoutGrid size={16} />
+    <span>Board ({orders.length})</span>
+  </button>
+
+  <button
+    onClick={() => setActiveTab('audit')}
+    className={`btn btn-sm ${activeTab === 'audit' ? 'btn-primary' : 'btn-secondary'}`}
+  >
+    <ScrollText size={16} />
+    <span>Audit Log</span>
   </button>
 
   <button

@@ -34,6 +34,10 @@ export const OrderProvider = ({ children }) => {
     customerOverride: null,
     billTo: emptyOrderAddress(),
     shipTo: emptyOrderAddress(),
+    // v0.9 F3: optional company the order is placed for. Empty = a
+    // personal order; the payload only gains `companyId` when one is
+    // chosen, so buyers with no company see no change at all.
+    companyId: '',
   });
 
   useEffect(() => {
@@ -179,6 +183,8 @@ export const OrderProvider = ({ children }) => {
       ...(isAddressFilled(orderMetadata.shipTo)
         ? { shipTo: { ...pickAddressFields(orderMetadata.shipTo), type: 'ship-to' } }
         : {}),
+      // Company orders (v0.9 F3): only when a company was selected.
+      ...(orderMetadata.companyId ? { companyId: orderMetadata.companyId } : {}),
     };
 
     const res = await orderApi.createOrder(payload);

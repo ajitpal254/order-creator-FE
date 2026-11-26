@@ -162,3 +162,40 @@ export const myOrders = [
     ],
   },
 ];
+
+// ---- v0.9 F1 Admin Console v2 (appended) ----
+export const adminOrdersV09 = [
+  {
+    _id: 'order-v09-1', orderNumber: 'HAO-2026-100201', status: 'Submitted',
+    createdAt: '2026-11-21T10:00:00.000Z', totalQuantity: 100, totalAmount: 1500,
+    estimatedWeightKg: 50, estimatedCartons: 5,
+    customerDetails: { customerName: 'Johnathan Smith', businessName: 'Apex Industrial Supplies LLC', country: 'United States' },
+    items: [{ product: 'prod-1' }],
+  },
+  {
+    _id: 'order-v09-2', orderNumber: 'HAO-2026-100202', status: 'Confirmed',
+    createdAt: '2026-11-22T10:00:00.000Z', totalQuantity: 40, totalAmount: 800.5,
+    estimatedWeightKg: 20, estimatedCartons: 2,
+    customerDetails: { customerName: 'Maria Garcia', businessName: 'Garcia Tools SA', country: 'Spain' },
+    items: [],
+  },
+];
+
+export const auditLogsV09 = [
+  {
+    _id: 'audit-1', actor: { customerName: 'H.A. Overseas Admin', email: 'admin@haoverseas.example.com' },
+    action: 'order.status_updated', entityType: 'Order', entityId: 'order-v09-1',
+    before: { status: 'Submitted' }, after: { status: 'Confirmed' },
+    ip: '127.0.0.1', requestId: 'req-1', createdAt: '2026-11-22T12:00:00.000Z',
+  },
+  {
+    _id: 'audit-2', actor: 'system', action: 'user.role_changed', entityType: 'User', entityId: 'user-buyer-1',
+    before: { role: 'buyer' }, after: { role: 'staff' },
+    ip: '127.0.0.1', requestId: 'req-2', createdAt: '2026-11-22T13:00:00.000Z',
+  },
+];
+
+export const customersV09 = [
+  { ...buyerUser, createdAt: '2026-10-01T10:00:00.000Z' },
+  { _id: 'user-2', customerName: 'Maria Garcia', businessName: 'Garcia Tools SA', country: 'Spain', phoneNumber: '+34 600 000 000', address: 'Madrid, Spain', username: 'garcia', email: 'maria@garcia.example.com', role: 'buyer', createdAt: '2026-10-02T10:00:00.000Z' },
+];

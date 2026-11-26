@@ -5,6 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import { twoFactorApi } from '../../api/twoFactor';
 import { queryClient } from '../../lib/queryClient.js';
 import { AddressesSection } from './AddressesSection';
+import { CompaniesSection } from './CompaniesSection';
+import { useTranslation } from 'react-i18next';
 
 // Staff roles that may manage two-factor authentication (v0.4).
 // Buyers ('buyer' / 'user') never see the 2FA section.
@@ -50,6 +52,7 @@ const selectableTextStyle = {
 };
 
 export const SettingsPage = () => {
+  const { t } = useTranslation();
   const { user, updateProfile, markTwoFactorEnabled } = useAuth();
   const isStaff = STAFF_ROLES.includes(user?.role);
 
@@ -240,16 +243,16 @@ export const SettingsPage = () => {
   return (
     <div style={{ maxWidth: '760px', margin: '0 auto', padding: '2rem 1rem' }}>
       <h2 style={{ fontSize: '1.6rem', color: '#FFFFFF', marginBottom: '0.25rem' }}>
-        Account Settings
+        {t('settings.title')}
       </h2>
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-        Manage your account security and notification preferences.
+        {t('settings.subtitle')}
       </p>
 
       {isStaff && (
         <div className="glass-card" style={{ marginBottom: '1.5rem' }}>
           <h3 style={{ color: '#FFFFFF', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-            Two-factor authentication
+            {t('settings.twoFactorTitle')}
           </h3>
 
           {twoFactorError && (
@@ -441,6 +444,12 @@ export const SettingsPage = () => {
         <AddressesSection />
       </QueryClientProvider>
 
+      {/* Companies + approvals (v0.9 F3), same shared-client provider
+          pattern as the addresses section. */}
+      <QueryClientProvider client={queryClient}>
+        <CompaniesSection />
+      </QueryClientProvider>
+
       <div className="glass-card">
         <h3
           style={{
@@ -453,7 +462,7 @@ export const SettingsPage = () => {
           }}
         >
           <Bell size={18} />
-          Notifications
+          {t('settings.notificationsTitle')}
         </h3>
 
         {notificationsError && (

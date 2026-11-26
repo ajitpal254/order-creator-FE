@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom/vitest';
+// i18n (FE-15): initialise the shared instance for tests too. Default
+// language resolves to 'en' (empty localStorage), so existing English
+// assertions keep passing.
+import '../i18n/index.js';
 import { cleanup, configure } from '@testing-library/react';
 
 // findBy*/waitFor get a longer window so slow renders don't flake.

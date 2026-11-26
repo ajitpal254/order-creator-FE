@@ -2,6 +2,9 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { NotificationBell } from './notifications/NotificationBell';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { formatNumber } from '../i18n/format.js';
 import { useOrder } from '../context/OrderContext';
 import { 
   Wrench, 
@@ -17,6 +20,7 @@ import {
 } from 'lucide-react';
 
 export const Navbar = () => {
+  const { t } = useTranslation();
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { totals } = useOrder();
   const navigate = useNavigate();
@@ -60,10 +64,10 @@ export const Navbar = () => {
               <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#FFFFFF', letterSpacing: '0.04em', fontFamily: 'var(--font-heading)' }}>
                 H.A. OVERSEAS
               </span>
-              <span className="badge badge-amber" style={{ fontSize: '0.65rem' }}>EXPORT</span>
+              <span className="badge badge-amber" style={{ fontSize: '0.65rem' }}>{t('nav.exportBadge')}</span>
             </div>
             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', letterSpacing: '0.02em' }}>
-              Hand Tools & Grease Guns Manufacturer
+              {t('nav.brandTagline')}
             </span>
           </div>
         </Link>
@@ -79,7 +83,7 @@ export const Navbar = () => {
             }}
           >
             <Layers size={16} />
-            <span>Tools Catalog</span>
+            <span>{t('nav.catalog')}</span>
           </Link>
 
           <Link
@@ -93,7 +97,7 @@ export const Navbar = () => {
             }}
           >
             <ShoppingCart size={16} color="#F59E0B" />
-            <span>Order Creator</span>
+            <span>{t('nav.orderCreator')}</span>
             {totals.totalQuantity > 0 && (
               <span
                 style={{
@@ -106,7 +110,7 @@ export const Navbar = () => {
                   marginLeft: '4px',
                 }}
               >
-                {totals.totalQuantity} pcs
+                {t('common.pcs', { count: formatNumber(totals.totalQuantity) })}
               </span>
             )}
           </Link>
@@ -121,7 +125,7 @@ export const Navbar = () => {
               }}
             >
               <LayoutDashboard size={16} />
-              <span>Dashboard</span>
+              <span>{t('nav.dashboard')}</span>
             </Link>
           )}
 
@@ -135,7 +139,7 @@ export const Navbar = () => {
               }}
             >
               <Package size={16} />
-              <span>My Orders</span>
+              <span>{t('nav.myOrders')}</span>
             </Link>
           )}
 
@@ -150,13 +154,14 @@ export const Navbar = () => {
               }}
             >
               <ShieldCheck size={16} />
-              <span>Admin Hub</span>
+              <span>{t('nav.adminHub')}</span>
             </Link>
           )}
         </nav>
 
         {/* User Account Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <LanguageSwitcher />
           {isAuthenticated ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <NotificationBell />
@@ -177,7 +182,7 @@ export const Navbar = () => {
               <Link
                 to="/settings"
                 className="btn btn-secondary btn-sm"
-                title="Settings"
+                title={t('common.settings')}
                 style={{ padding: '0.4rem 0.6rem' }}
               >
                 <Settings size={16} />
@@ -188,7 +193,7 @@ export const Navbar = () => {
                   navigate('/login');
                 }}
                 className="btn btn-secondary btn-sm"
-                title="Log out"
+                title={t('common.logOut')}
                 style={{ padding: '0.4rem 0.6rem' }}
               >
                 <LogOut size={16} />
@@ -197,10 +202,10 @@ export const Navbar = () => {
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Link to="/login" className="btn btn-secondary btn-sm">
-                Sign In
+                {t('common.signIn')}
               </Link>
               <Link to="/signup" className="btn btn-primary btn-sm">
-                Create Account
+                {t('common.createAccount')}
               </Link>
             </div>
           )}

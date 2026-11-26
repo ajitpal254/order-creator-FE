@@ -71,7 +71,7 @@ export const useAdminData = () => {
 
   return {
     stats, orders, setOrders, products, setProducts, attributes, setAttributes,
-    customers, customerSearch, setCustomerSearch, loading, toastMessage,
+    customers, setCustomers, customerSearch, setCustomerSearch, loading, toastMessage,
     downloadingPdfId, showToast, handleDownloadPdf,
   };
 };
