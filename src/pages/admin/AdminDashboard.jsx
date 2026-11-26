@@ -104,6 +104,10 @@ export const AdminDashboard = () => {
           statusNote={statusNote}
           setStatusNote={setStatusNote}
           handleUpdateStatus={handleUpdateStatus}
+          onOrderUpdated={(updated) => {
+            setOrders((prev) => prev.map((o) => (o._id === updated._id ? updated : o)));
+            setSelectedOrderForStatus(updated);
+          }}
         />
       )}
 

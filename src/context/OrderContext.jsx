@@ -1,5 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { orderApi } from '../api/client';
+import { isAddressFilled, pickAddressFields } from '../api/addresses';
+
+// Blank bill-to / ship-to blocks for the order sheet (v0.5 F3). Field
+// names match the saved-address contract (label, line1, line2, city,
+// state, country, postalCode); the picker fills them from a saved
+// address and the buyer can still edit them by hand.
+const emptyOrderAddress = () => ({
+  label: '',
+  line1: '',
+  line2: '',
+  city: '',
+  state: '',
+  country: '',
+  postalCode: '',
+});
 
 const OrderContext = createContext(null);
 
@@ -17,6 +32,8 @@ export const OrderProvider = ({ children }) => {
     shippingMarks: 'H.A. OVERSEAS / ORDER LOT\nPORT OF DISCHARGE: BUYER PORT\nFRAGILE / HANDLE WITH CARE',
     specialInstructions: 'Export seaworthy 7-ply corrugated cartons with inner water-proof plastic barrier.',
     customerOverride: null,
+    billTo: emptyOrderAddress(),
+    shipTo: emptyOrderAddress(),
   });
 
   useEffect(() => {
@@ -81,6 +98,43 @@ export const OrderProvider = ({ children }) => {
     setCartItems((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Duplicate a line (FE-12): clone the item at `index` and insert the
+  // copy directly below the original. Lines are modelled by index in
+  // this cart (no per-line id), so the clone is a plain shallow copy —
+  // it deliberately bypasses addItem's identical-variant merge so the
+  // duplicate stays its own editable line.
+  const duplicateItem = (index) => {
+    setCartItems((prev) => {
+      const current = prev[index];
+      if (!current) return prev;
+      const updated = [...prev];
+      updated.splice(index + 1, 0, { ...current });
+      return updated;
+    });
+  };
+
+  // Replace the whole sheet with the given items (FE-12: loading an
+  // order created from a template into the creator for editing). Items
+  // are normalised exactly as addItem normalises a fresh line; an
+  // API-supplied totalPrice is kept verbatim when present.
+  const replaceItems = (items) => {
+    setCartItems(
+      (items || []).map((item) => {
+        const unitPrice = Number(item.unitPrice) || 0;
+        const qty = Number(item.quantity) || 1;
+        return {
+          ...item,
+          quantity: qty,
+          unitPrice,
+          totalPrice:
+            typeof item.totalPrice === 'number'
+              ? item.totalPrice
+              : parseFloat((qty * unitPrice).toFixed(2)),
+        };
+      })
+    );
+  };
+
   const clearCart = () => {
     setCartItems([]);
     localStorage.removeItem('hao_order_cart');
@@ -116,6 +170,15 @@ export const OrderProvider = ({ children }) => {
       shippingMarks: orderMetadata.shippingMarks,
       specialInstructions: orderMetadata.specialInstructions,
       customerDetailsOverride: orderMetadata.customerOverride,
+      // Bill-to / ship-to ride along only when the buyer actually filled
+      // them (by hand or via a saved address) — an untouched order keeps
+      // exactly the payload shape it has always sent.
+      ...(isAddressFilled(orderMetadata.billTo)
+        ? { billTo: { ...pickAddressFields(orderMetadata.billTo), type: 'bill-to' } }
+        : {}),
+      ...(isAddressFilled(orderMetadata.shipTo)
+        ? { shipTo: { ...pickAddressFields(orderMetadata.shipTo), type: 'ship-to' } }
+        : {}),
     };
 
     const res = await orderApi.createOrder(payload);
@@ -135,6 +198,8 @@ export const OrderProvider = ({ children }) => {
         addItem,
         updateItem,
         removeItem,
+        duplicateItem,
+        replaceItems,
         clearCart,
         totals,
         submitOrder,

@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileDown, Package, RotateCcw } from 'lucide-react';
 import { StatusBadge } from '../StatusBadge';
+import { FxRateLine } from '../order/FxRateLine';
 
 // One order row for the buyer dashboard (FE-13): order number, date,
 // status chip (shared StatusBadge) and the order total EXACTLY as the
@@ -60,6 +61,7 @@ export const BuyerOrderCard = ({
           <span className="buyer-order-card__total-value">
             ${order.totalAmount?.toFixed(2)} USD
           </span>
+          <FxRateLine order={order} />
         </div>
 
         <div className="buyer-order-card__actions">

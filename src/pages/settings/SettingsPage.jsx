@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, CheckCircle2, AlertCircle, Copy, ShieldCheck, ShieldOff } from 'lucide-react';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
 import { twoFactorApi } from '../../api/twoFactor';
+import { queryClient } from '../../lib/queryClient.js';
+import { AddressesSection } from './AddressesSection';
 
 // Staff roles that may manage two-factor authentication (v0.4).
 // Buyers ('buyer' / 'user') never see the 2FA section.
@@ -376,6 +379,14 @@ export const SettingsPage = () => {
           )}
         </div>
       )}
+
+      {/* Saved addresses (v0.5 F3). The section is TanStack Query-powered;
+          it is wrapped in a provider bound to the app's shared queryClient
+          so the section works even where SettingsPage is rendered without
+          an outer provider (the app root provides the same client). */}
+      <QueryClientProvider client={queryClient}>
+        <AddressesSection />
+      </QueryClientProvider>
 
       <div className="glass-card">
         <h3

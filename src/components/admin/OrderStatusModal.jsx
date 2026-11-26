@@ -1,7 +1,8 @@
 import React from 'react';
 import { Modal } from '../../components/Modal';
+import { QuotePanel } from '../order/QuotePanel';
 
-export const OrderStatusModal = ({ selectedOrderForStatus, setSelectedOrderForStatus, newStatus, setNewStatus, statusNote, setStatusNote, handleUpdateStatus }) => (
+export const OrderStatusModal = ({ selectedOrderForStatus, setSelectedOrderForStatus, newStatus, setNewStatus, statusNote, setStatusNote, handleUpdateStatus, onOrderUpdated }) => (
   <Modal
     isOpen={Boolean(selectedOrderForStatus)}
     onClose={() => setSelectedOrderForStatus(null)}
@@ -34,6 +35,10 @@ export const OrderStatusModal = ({ selectedOrderForStatus, setSelectedOrderForSt
         onChange={(e) => setStatusNote(e.target.value)}
       />
     </div>
+
+    {/* Quote negotiation for quote-type orders (staff counter-offer
+        responses); renders nothing for regular orders. */}
+    <QuotePanel order={selectedOrderForStatus} onOrderUpdated={onOrderUpdated} />
 
     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
       <button
