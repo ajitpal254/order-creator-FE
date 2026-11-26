@@ -6,6 +6,7 @@ import { twoFactorApi } from '../../api/twoFactor';
 import { queryClient } from '../../lib/queryClient.js';
 import { AddressesSection } from './AddressesSection';
 import { CompaniesSection } from './CompaniesSection';
+import { DeveloperSection } from './DeveloperSection';
 import { useTranslation } from 'react-i18next';
 
 // Staff roles that may manage two-factor authentication (v0.4).
@@ -448,6 +449,12 @@ export const SettingsPage = () => {
           pattern as the addresses section. */}
       <QueryClientProvider client={queryClient}>
         <CompaniesSection />
+      </QueryClientProvider>
+
+      {/* Developer: API keys + webhooks (v1.0 F1). All authenticated
+          users; keys are per-user. Same shared-client provider pattern. */}
+      <QueryClientProvider client={queryClient}>
+        <DeveloperSection />
       </QueryClientProvider>
 
       <div className="glass-card">

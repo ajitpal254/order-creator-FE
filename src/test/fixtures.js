@@ -113,6 +113,70 @@ export const assistantReply = {
   chips: ['Track my order', 'Talk to a person'],
 };
 
+// Assistant proposals (v1.0 FEAT-16 Stages 3–4 — F2). Line-item figures
+// (unitPrice) are payload values returned by the mocked API and rendered
+// verbatim — never recomputed.
+export const assistantProposal = {
+  id: 'prop-1',
+  kind: 'order-draft',
+  summary: 'Draft order: 200 × Combination Spanner Set 14pc, plus 10 × Mystery Widget',
+  expiresAt: '2099-01-01T00:00:00.000Z',
+  payload: {
+    items: [
+      {
+        product: 'prod-1',
+        productName: 'Combination Spanner Set 14pc',
+        sku: 'HAO-CS-014',
+        quantity: 200,
+        matched: true,
+        unitPrice: 12.5,
+      },
+      {
+        productName: 'Mystery Widget',
+        quantity: 10,
+        matched: false,
+      },
+    ],
+  },
+};
+
+export const assistantExpiredProposal = {
+  ...assistantProposal,
+  id: 'prop-expired',
+  summary: 'Draft order: 200 × Combination Spanner Set 14pc',
+  expiresAt: '2020-01-01T00:00:00.000Z',
+};
+
+export const assistantExtractedProposal = {
+  id: 'prop-po-1',
+  kind: 'order-draft',
+  summary: 'Extracted from PO: 2 lines (1 matched, 1 unmatched)',
+  expiresAt: '2099-01-01T00:00:00.000Z',
+  payload: {
+    items: [
+      {
+        product: 'prod-2',
+        productName: 'Lever Grease Gun 400cc',
+        sku: 'HAO-GG-400',
+        quantity: 50,
+        matched: true,
+        unitPrice: 9.75,
+      },
+      {
+        productName: 'Unrecognised Sprocket XL',
+        quantity: 5,
+        matched: false,
+      },
+    ],
+  },
+};
+
+export const assistantCreatedOrder = {
+  _id: 'order-draft-1',
+  orderNumber: 'HAO-2026-100099',
+  status: 'Draft',
+};
+
 export const assistantFaq = [
   {
     q: 'What is the minimum order quantity?',
@@ -198,4 +262,70 @@ export const auditLogsV09 = [
 export const customersV09 = [
   { ...buyerUser, createdAt: '2026-10-01T10:00:00.000Z' },
   { _id: 'user-2', customerName: 'Maria Garcia', businessName: 'Garcia Tools SA', country: 'Spain', phoneNumber: '+34 600 000 000', address: 'Madrid, Spain', username: 'garcia', email: 'maria@garcia.example.com', role: 'buyer', createdAt: '2026-10-02T10:00:00.000Z' },
+];
+
+// ---- v1.0 F1 Developer (API keys + webhooks) ----
+// List shapes mirror the backend contract: keys never carry the plaintext
+// after creation; the create responses below are the ONLY place a
+// plaintext key / signing secret appears.
+export const developerApiKeys = [
+  {
+    id: 'key-1',
+    name: 'Warehouse integration',
+    prefix: 'hao_live_8f3a',
+    scopes: ['products:read', 'orders:read'],
+    lastUsedAt: '2026-11-24T09:15:00.000Z',
+    createdAt: '2026-11-20T10:00:00.000Z',
+  },
+  {
+    id: 'key-2',
+    name: 'Unused spare key',
+    prefix: 'hao_live_b71c',
+    scopes: ['orders:write'],
+    lastUsedAt: null,
+    createdAt: '2026-11-21T10:00:00.000Z',
+  },
+];
+
+export const createdApiKey = {
+  key: 'hao_live_8f3a_full_plaintext_key_for_tests',
+  id: 'key-new',
+  prefix: 'hao_live_8f3a',
+};
+
+export const developerWebhooks = [
+  {
+    id: 'wh-1',
+    url: 'https://example.com/hooks/ha-overseas',
+    events: ['order.created', 'payment.confirmed'],
+    active: true,
+    createdAt: '2026-11-20T10:00:00.000Z',
+  },
+];
+
+export const createdWebhook = {
+  id: 'wh-new',
+  url: 'https://example.com/hooks/new',
+  events: ['order.created'],
+  active: true,
+  secret: 'whsec_test_signing_secret_value',
+};
+
+export const webhookDeliveries = [
+  {
+    id: 'del-1',
+    event: 'order.created',
+    status: 'delivered',
+    attempts: 1,
+    lastStatusCode: 200,
+    createdAt: '2026-11-24T09:16:00.000Z',
+  },
+  {
+    id: 'del-2',
+    event: 'payment.confirmed',
+    status: 'failed',
+    attempts: 3,
+    lastStatusCode: 500,
+    createdAt: '2026-11-24T09:20:00.000Z',
+  },
 ];

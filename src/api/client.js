@@ -118,6 +118,64 @@ export async function apiRequest(endpoint, options = {}, _retried = false) {
   return data;
 }
 
+// Multipart upload with real upload progress. fetch() exposes no upload
+// progress events, so this uses XMLHttpRequest; otherwise it mirrors
+// apiRequest exactly — same Authorization header, credentials, JSON
+// parsing, error shape, and one silent-refresh retry on a 401.
+// onProgress receives an integer percent (0–100), or null when the total
+// size is not computable (callers render an indeterminate state then).
+export function apiUpload(endpoint, formData, { onProgress } = {}, _retried = false) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${API_BASE}${endpoint}`);
+    xhr.withCredentials = true;
+    const token = getToken();
+    if (token) {
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    }
+    if (xhr.upload && typeof onProgress === 'function') {
+      xhr.upload.addEventListener('progress', (event) => {
+        onProgress(
+          event.lengthComputable && event.total > 0
+            ? Math.min(100, Math.round((event.loaded / event.total) * 100))
+            : null
+        );
+      });
+    }
+    xhr.addEventListener('load', async () => {
+      const isJson = (xhr.getResponseHeader('content-type') || '').includes(
+        'application/json'
+      );
+      let data = xhr.responseText;
+      if (isJson) {
+        try {
+          data = JSON.parse(xhr.responseText);
+        } catch {
+          data = xhr.responseText;
+        }
+      }
+      if (xhr.status === 401 && !_retried && !isAuthEndpoint(endpoint)) {
+        try {
+          if (await refreshAccessToken()) {
+            resolve(apiUpload(endpoint, formData, { onProgress }, true));
+            return;
+          }
+        } catch {
+          // Refresh failed — fall through and report the original 401.
+        }
+      }
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(data);
+      } else {
+        reject(parseResponseError(data, xhr.status));
+      }
+    });
+    xhr.addEventListener('error', () => reject(new Error('Upload failed — network error')));
+    xhr.addEventListener('abort', () => reject(new Error('Upload cancelled')));
+    xhr.send(formData);
+  });
+}
+
 // API Service modules
 export const authApi = {
   login: (credentials) =>

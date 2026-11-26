@@ -209,6 +209,7 @@ export const hi = {
     subtitle: 'अपने खाते की सुरक्षा और सूचना प्राथमिकताएँ प्रबंधित करें।',
     twoFactorTitle: 'दो-कारक प्रमाणीकरण',
     notificationsTitle: 'सूचनाएँ',
+    developerTitle: 'डेवलपर',
   },
   status: {
     draft: 'ड्राफ़्ट',
