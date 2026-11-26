@@ -1,7 +1,9 @@
 import React, { Suspense, lazy, useCallback, useRef, useState } from 'react';
 import { MessageCircle } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
 import { assistantApi } from '../../api/assistant';
+import { STAFF_ROLES } from '../../hooks/useBuyerDashboard';
 import './assistant.css';
 
 // Assistant widget (v0.7 FEAT-16 Stages 1–2 — F1).
@@ -32,6 +34,16 @@ const HANDOFF_ERROR =
   "Sorry, I couldn't pass this conversation to our team just now. Please try again in a moment.";
 const FAQ_ERROR =
   "Sorry, I couldn't load the FAQs just now. Please try again in a moment.";
+const PROPOSAL_CONFIRM_ERROR =
+  "Sorry, I couldn't create the draft order from that proposal. Please try again.";
+const PROPOSAL_DISMISS_ERROR =
+  "Sorry, I couldn't dismiss that proposal. Please try again.";
+const EXTRACT_INTRO =
+  "I've extracted a draft order from your PO — review the lines below, then confirm to create the draft.";
+const EXTRACT_ERROR =
+  "Sorry, I couldn't extract an order from that file. Please check it is a PDF, XLSX or CSV purchase order and try again.";
+const EXTRACT_NO_PROPOSAL =
+  "I couldn't find an order to extract from that file. Please try a different purchase order.";
 
 // The FAQ endpoint's shape is flexible — render whatever it returns
 // defensively: a string, an array of {q,a}/{question,answer}/strings,
@@ -77,18 +89,39 @@ export const formatFaq = (payload) => {
 // contract is the bare { conversationId, reply, chips } shape.
 const unwrapMessageResponse = (res) => {
   if (res && typeof res === 'object' && res.data && typeof res.data === 'object') {
-    if (res.data.reply || res.data.conversationId) return res.data;
+    if (res.data.reply || res.data.conversationId || res.data.proposal) return res.data;
   }
   return res || {};
 };
 
+// Same envelope tolerance for the proposal endpoints: confirm resolves
+// { order } and extract-po resolves { proposal }, possibly wrapped.
+const unwrapProposalResponse = (res) => {
+  if (res && typeof res === 'object' && res.data && typeof res.data === 'object') {
+    if (res.data.proposal || res.data.order) return res.data;
+  }
+  return res || {};
+};
+
+const isValidProposal = (proposal) =>
+  Boolean(proposal && typeof proposal === 'object' && (proposal.id || proposal._id));
+
+// Normalise the id field the card/handlers rely on.
+const normaliseProposal = (proposal) =>
+  proposal && typeof proposal === 'object'
+    ? { ...proposal, id: proposal.id ?? proposal._id }
+    : proposal;
+
 export const AssistantWidget = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin, user } = useAuth();
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const [messages, setMessages] = useState([]);
   const [chips, setChips] = useState(INITIAL_CHIPS);
   const [sending, setSending] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [extractProgress, setExtractProgress] = useState(null);
   const [feedback, setFeedback] = useState({});
   const fabRef = useRef(null);
   const wasOpenRef = useRef(false);
@@ -101,11 +134,20 @@ export const AssistantWidget = () => {
     return `msg-${idCounterRef.current}`;
   };
 
-  const appendMessage = useCallback((role, text) => {
-    const message = { id: nextId(), role, text };
+  const appendMessage = useCallback((role, text, extra = {}) => {
+    const message = { id: nextId(), role, text, ...extra };
     messagesRef.current = [...messagesRef.current, message];
     setMessages(messagesRef.current);
     return message;
+  }, []);
+
+  // Patch one message in place (proposal lifecycle transitions) — the
+  // messagesRef mirror keeps the change visible to other handlers.
+  const updateMessage = useCallback((messageId, patch) => {
+    messagesRef.current = messagesRef.current.map((m) =>
+      m.id === messageId ? { ...m, ...patch } : m
+    );
+    setMessages(messagesRef.current);
   }, []);
 
   const applyConversationId = useCallback((id) => {
@@ -131,7 +173,13 @@ export const AssistantWidget = () => {
           'assistant',
           typeof data.reply === 'string' && data.reply
             ? data.reply
-            : 'Here is what I found.'
+            : 'Here is what I found.',
+          isValidProposal(data.proposal)
+            ? {
+                proposal: normaliseProposal(data.proposal),
+                proposalState: { status: 'pending' },
+              }
+            : {}
         );
         if (Array.isArray(data.chips)) {
           setChips(data.chips.filter((chip) => typeof chip === 'string' && chip));
@@ -207,6 +255,93 @@ export const AssistantWidget = () => {
     []
   );
 
+  // Proposal actions (v1.0 F2). The card passes the PROPOSAL id; the
+  // owning message is found from state so its proposalState can move
+  // through confirming -> confirmed / error (and likewise for dismiss).
+  const findProposalMessage = useCallback(
+    (proposalId) =>
+      messagesRef.current.find((m) => m.proposal && m.proposal.id === proposalId),
+    []
+  );
+
+  const handleConfirmProposal = useCallback(
+    async (proposalId) => {
+      const message = findProposalMessage(proposalId);
+      if (!message || message.proposalState?.status === 'confirming') return;
+      updateMessage(message.id, {
+        proposalState: { status: 'confirming' },
+      });
+      try {
+        const res = await assistantApi.confirmProposal(proposalId);
+        const data = unwrapProposalResponse(res);
+        const order =
+          data.order && typeof data.order === 'object' ? data.order : null;
+        updateMessage(message.id, {
+          proposalState: { status: 'confirmed', order },
+        });
+        // The new draft should appear in My Orders / dashboard lists.
+        queryClient.invalidateQueries({ queryKey: ['orders'] });
+      } catch {
+        updateMessage(message.id, {
+          proposalState: { status: 'error', error: PROPOSAL_CONFIRM_ERROR },
+        });
+      }
+    },
+    [findProposalMessage, queryClient, updateMessage]
+  );
+
+  const handleDismissProposal = useCallback(
+    async (proposalId) => {
+      const message = findProposalMessage(proposalId);
+      if (!message || message.proposalState?.status === 'dismissing') return;
+      updateMessage(message.id, {
+        proposalState: { status: 'dismissing' },
+      });
+      try {
+        await assistantApi.dismissProposal(proposalId);
+        updateMessage(message.id, {
+          proposalState: { status: 'dismissed' },
+        });
+      } catch {
+        updateMessage(message.id, {
+          proposalState: { status: 'error', error: PROPOSAL_DISMISS_ERROR },
+        });
+      }
+    },
+    [findProposalMessage, updateMessage]
+  );
+
+  // Staff PO extraction (v1.0 F2): upload the file, then render the
+  // returned proposal as an editable review card in the conversation.
+  const handleExtractPo = useCallback(
+    async (file) => {
+      if (!file || extracting) return;
+      setExtracting(true);
+      setExtractProgress(null);
+      try {
+        const res = await assistantApi.extractPo(file, {
+          onProgress: (percent) => setExtractProgress(percent),
+        });
+        const data = unwrapProposalResponse(res);
+        if (isValidProposal(data.proposal)) {
+          appendMessage('assistant', EXTRACT_INTRO, {
+            proposal: normaliseProposal(data.proposal),
+            proposalState: { status: 'pending' },
+            proposalReview: true,
+          });
+        } else {
+          appendMessage('assistant', EXTRACT_NO_PROPOSAL);
+        }
+      } catch {
+        appendMessage('assistant', EXTRACT_ERROR);
+      } finally {
+        setExtracting(false);
+        setExtractProgress(null);
+      }
+    },
+    [appendMessage, extracting]
+  );
+
   const handleClear = useCallback(async () => {
     const id = conversationIdRef.current;
     if (id) {
@@ -234,6 +369,12 @@ export const AssistantWidget = () => {
   }, [open ]);
 
   if (!isAuthenticated) return null;
+
+  // PO extraction is staff-only: the app's staff roles (STAFF_ROLES, plus
+  // the generic 'staff' role and admins) — same checks DocumentsPanel /
+  // PayPanel use.
+  const canExtractPo =
+    Boolean(isAdmin) || user?.role === 'staff' || STAFF_ROLES.includes(user?.role);
 
   return (
     <div className="assistant-widget">
@@ -265,6 +406,12 @@ export const AssistantWidget = () => {
             feedback={feedback}
             onFeedback={handleFeedback}
             onClear={handleClear}
+            onConfirmProposal={handleConfirmProposal}
+            onDismissProposal={handleDismissProposal}
+            canExtractPo={canExtractPo}
+            onExtractPo={handleExtractPo}
+            extracting={extracting}
+            extractProgress={extractProgress}
           />
         </Suspense>
       )}

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Send, ThumbsDown, ThumbsUp, Trash2, X } from 'lucide-react';
+import { FileUp, Send, ThumbsDown, ThumbsUp, Trash2, X } from 'lucide-react';
+import { ProposalCard } from './ProposalCard';
 import './assistant.css';
 
 // Assistant chat drawer (v0.7 FEAT-16 Stages 1–2 — F1).
@@ -22,11 +23,25 @@ export const AssistantDrawer = ({
   feedback,
   onFeedback,
   onClear,
+  onConfirmProposal,
+  onDismissProposal,
+  canExtractPo = false,
+  onExtractPo,
+  extracting = false,
+  extractProgress = null,
 }) => {
   const [draft, setDraft] = useState('');
   const drawerRef = useRef(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const handlePoFile = (event) => {
+    const file = event.target.files?.[0];
+    // Reset so picking the same file again re-triggers the change event.
+    event.target.value = '';
+    if (file) onExtractPo?.(file);
+  };
 
   // Focus the input on open, trap Tab inside the drawer, Esc closes.
   useEffect(() => {
@@ -61,7 +76,7 @@ export const AssistantDrawer = ({
   useEffect(() => {
     const el = messagesRef.current;
     if (open && el) el.scrollTop = el.scrollHeight;
-  }, [open, messages, sending]);
+  }, [open, messages, sending, extracting]);
 
   if (!open) return null;
 
@@ -131,6 +146,15 @@ export const AssistantDrawer = ({
               className={`assistant-message assistant-message-${message.role}`}
             >
               <div className="assistant-bubble">{message.text}</div>
+              {message.proposal && (
+                <ProposalCard
+                  proposal={message.proposal}
+                  state={message.proposalState}
+                  review={Boolean(message.proposalReview)}
+                  onConfirm={onConfirmProposal}
+                  onDismiss={onDismissProposal}
+                />
+              )}
               {message.role === 'assistant' && (
                 <div className="assistant-feedback">
                   <button
@@ -168,6 +192,55 @@ export const AssistantDrawer = ({
           </div>
         )}
       </div>
+
+      {canExtractPo && (
+        <div className="assistant-extract">
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="assistant-extract-input"
+            aria-label="PO file"
+            accept=".pdf,.xlsx,.csv,application/pdf,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            onChange={handlePoFile}
+            disabled={extracting}
+          />
+          <button
+            type="button"
+            className="assistant-extract-button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={extracting || sending}
+          >
+            <FileUp size={14} />
+            {extracting ? 'Extracting…' : 'Extract from PO'}
+          </button>
+          <span className="assistant-extract-hint">
+            Staff: upload a purchase order (PDF, XLSX or CSV) to draft an order from it.
+          </span>
+          {extracting && (
+            <div
+              className="assistant-extract-progress"
+              role="progressbar"
+              aria-label="PO upload progress"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={typeof extractProgress === 'number' ? extractProgress : undefined}
+            >
+              <div
+                className={`assistant-extract-progress-bar${
+                  typeof extractProgress === 'number'
+                    ? ''
+                    : ' assistant-extract-progress-indeterminate'
+                }`}
+                style={
+                  typeof extractProgress === 'number'
+                    ? { width: `${extractProgress}%` }
+                    : undefined
+                }
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {chips.length > 0 && (
         <div className="assistant-chips" aria-label="Suggested messages">
